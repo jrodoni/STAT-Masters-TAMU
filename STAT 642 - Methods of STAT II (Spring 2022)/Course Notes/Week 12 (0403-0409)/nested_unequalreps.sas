@@ -1,0 +1,26 @@
+ods html; ods graphics on;
+ods rtf file="u:/meth2/handouts/manroll.rtf";
+option ls=80 ps=55 nocenter nodate;
+title 'NESTED DESIGN - UNEQUAL SAMPLE SIZES';
+data strength;
+INPUT MAN $ ROLL SAMPLE Y @@;
+LABEL MAN = 'MANUFACTURER' Y= 'STRENGTH';
+cards;
+M1 1 1 110 M1 1 2  90 M1 1 3 120
+M1 2 1 130 M1 2 2 115 M1 2 3 105
+M1 3 1  50 M1 3 2  75 M1 3 3  85 M1 3 4 40
+M2 1 1 130 M2 1 2  45 M2 1 3  50 M2 1 4 40
+M2 2 1  45 M2 2 2  55 M2 2 3  65
+M2 3 1 120 M2 3 2  50 M2 3 3 150
+M3 1 1 100 M3 1 2 200 M3 1 3  90 M3 1 4 70 M3 1 5 90
+M3 2 1 130 M3 2 2  80 M3 2 3  70 M3 2 4 80 M3 2 5 150
+RUN;
+TITLE ANALYSIS USING PROC MIXED-TYPE1;
+PROC MIXED METHOD=TYPE1 CL ALPHA=.05 COVTEST;
+CLASS MAN ROLL SAMPLE;
+MODEL Y = MAN/RESIDUALS;
+RANDOM ROLL(MAN);
+LSMEANS MAN/ADJUST=TUKEY;
+RUN;
+ods rtf close;
+ods graphics off; ods html close;
