@@ -1,0 +1,452 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={STAT 608 - Assignment1},
+  pdfauthor={Jack Rodoni},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{STAT 608 - Assignment1}
+\author{Jack Rodoni}
+\date{1/28/2022}
+
+\begin{document}
+\maketitle
+
+\hypertarget{question-1-page-38-in-our-textbook.-notice-that-to-answer-these-questions-correctly-you-should-be-thinking-like-a-statistician-and-talking-about-population-parameters-not-only-sample-statistics.-that-is-do-some-inference-in-every-part-using-as-much-everyday-laypersons-terminology-as-possible.-for-example-part-b-should-not-just-say-the-intercept-is-or-is-not-10000.-what-does-an-intercept-mean-in-context-to-someone-who-is-selling-movie-tickets-use-the-discussion-board-as-needed-to-get-all-your-details-correct.}{%
+\section{1. Question 1, page 38 in our textbook. Notice that to answer
+these questions correctly, you should be thinking like a statistician
+and talking about population parameters, not only sample statistics.
+That is, do some inference in every part, using as much everyday
+layperson's terminology as possible. For example, part b should not just
+say ``The intercept is (or is not) 10,000.'' What does an intercept mean
+in context to someone who is selling movie tickets? Use the discussion
+board as needed to get all your details
+correct.}\label{question-1-page-38-in-our-textbook.-notice-that-to-answer-these-questions-correctly-you-should-be-thinking-like-a-statistician-and-talking-about-population-parameters-not-only-sample-statistics.-that-is-do-some-inference-in-every-part-using-as-much-everyday-laypersons-terminology-as-possible.-for-example-part-b-should-not-just-say-the-intercept-is-or-is-not-10000.-what-does-an-intercept-mean-in-context-to-someone-who-is-selling-movie-tickets-use-the-discussion-board-as-needed-to-get-all-your-details-correct.}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The web site www.playbill.com provides weekly reports on the box
+  office ticket sales for plays on Broadway in New York. We shall
+  consider the data for the week October 11--17, 2004 (referred to below
+  as the current week). The data are in the form of the gross box office
+  results for the current week and the gross box office results for the
+  previous week (i.e., October 3--10, 2004). The data, plotted in Figure
+  2.6 , are available on the book web site in the file playbill.csv.
+\end{enumerate}
+
+Fit the following model to the data: Y= b\textsubscript{0}
++b\textsubscript{1}X where Y is the gross box office results for the
+current week (in \$) and x is the gross box office results for the
+previous week (in \$). Complete the following tasks:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{playbill }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\FunctionTok{paste0}\NormalTok{(}\StringTok{"C:/Users/jackr/OneDrive/Desktop/Graduate School "}\NormalTok{,}
+                     \StringTok{"Courses/STAT 608 {-} Regression Analysis/Data/playbill.csv"}\NormalTok{))}
+
+\NormalTok{lm1 }\OtherTok{=} \FunctionTok{with}\NormalTok{(playbill,}\FunctionTok{lm}\NormalTok{(CurrentWeek}\SpecialCharTok{\textasciitilde{}}\NormalTok{LastWeek))}
+
+\NormalTok{modelsum }\OtherTok{=} \FunctionTok{summary}\NormalTok{(lm1)}
+\FunctionTok{summary}\NormalTok{(lm1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = CurrentWeek ~ LastWeek)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -36926  -7525  -2581   7782  35443 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 6.805e+03  9.929e+03   0.685    0.503    
+## LastWeek    9.821e-01  1.443e-02  68.071   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 18010 on 16 degrees of freedom
+## Multiple R-squared:  0.9966, Adjusted R-squared:  0.9963 
+## F-statistic:  4634 on 1 and 16 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{equatiomatic}\SpecialCharTok{::}\FunctionTok{extract\_eq}\NormalTok{(lm1, }\AttributeTok{use\_coefs =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{equation}
+\operatorname{\widehat{CurrentWeek}} = 6804.89 + 0.98(\operatorname{LastWeek})
+\end{equation}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  Find a 95\% confidence interval for the slope of the regression model,
+  b\textsubscript{1}. Is 1 a plausible value for b\textsubscript{1}?
+  Give a reason to support your answer.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# calculation done by R}
+\FunctionTok{confint}\NormalTok{(lm1, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+
+\CommentTok{\# if we just want B1}
+\FunctionTok{confint}\NormalTok{(lm1, }\StringTok{"playbill$LastWeek"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# By Hand calculation}
+\FunctionTok{c}\NormalTok{(lm1}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}} \FunctionTok{qt}\NormalTok{(.}\DecValTok{975}\NormalTok{,}\DecValTok{16}\NormalTok{)}\SpecialCharTok{*}\NormalTok{modelsum}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{],}
+\NormalTok{  lm1}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{+} \FunctionTok{qt}\NormalTok{(.}\DecValTok{975}\NormalTok{,}\DecValTok{16}\NormalTok{)}\SpecialCharTok{*}\NormalTok{modelsum}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                     2.5 %       97.5 %
+## (Intercept) -1.424433e+04 27854.099443
+## LastWeek     9.514971e-01     1.012666
+\end{verbatim}
+
+\textbf{Yes, 1 is a reasonable value for B\textsubscript{1} as 1 is
+contained in our confidence interval}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Test the null hypothesis H\textsubscript{0} : b\textsubscript{0} =
+  10000 against a two-sided alternative. Interpret your result.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{teststat }\OtherTok{=}\NormalTok{ (lm1}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{{-}} \DecValTok{10000}\NormalTok{)}\SpecialCharTok{/}\NormalTok{modelsum}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{]}
+\DecValTok{2}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{(}\FunctionTok{pt}\NormalTok{(}\FunctionTok{abs}\NormalTok{(teststat),}\DecValTok{16}\NormalTok{))) }\CommentTok{\# See STAT 641 H.O 12 pg 24}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## (Intercept) 
+##   0.7517807
+\end{verbatim}
+
+\textbf{The p-value is 0.7517807 -\textgreater{} we would fail to reject
+the null that b\textsubscript{0} = 10000}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Use the fitted regression model to estimate the gross box office
+  results for the current week (in \$) for a production with \$400,000
+  in gross box office the previous week. Find a 95\% prediction interval
+  for the gross box office. is \$450,000 a feasible value for the gross
+  box office results in the current week, for a production with
+  \$400,000 in gross box office the previous week? Give a reason to
+  support your answer.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# 95\% CI}
+\FunctionTok{summary}\NormalTok{(lm1)}
+\DocumentationTok{\#\# R calculation}
+\FunctionTok{predict}\NormalTok{(lm1, }\AttributeTok{newdata =} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{LastWeek =} \DecValTok{400000}\NormalTok{), }\AttributeTok{interval =} \StringTok{"confidence"}\NormalTok{)}
+\DocumentationTok{\#\# by hand}
+\FunctionTok{with}\NormalTok{(playbill, }\DecValTok{399637} \SpecialCharTok{+} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{*} \FunctionTok{qt}\NormalTok{(}\FloatTok{0.975}\NormalTok{, }\DecValTok{16}\NormalTok{) }\SpecialCharTok{*} \DecValTok{18010} \SpecialCharTok{*} 
+  \FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{/}\DecValTok{18}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{400000} \SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(LastWeek)) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{/} \FunctionTok{sum}\NormalTok{((LastWeek }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(LastWeek)) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)))}
+
+
+\CommentTok{\# 95\% PI}
+\DocumentationTok{\#\# R calculation}
+\FunctionTok{predict}\NormalTok{(lm1, }\AttributeTok{newdata =} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{LastWeek =} \DecValTok{400000}\NormalTok{), }\AttributeTok{interval =} \StringTok{"prediction"}\NormalTok{)}
+\DocumentationTok{\#\# by hand}
+\NormalTok{PI }\OtherTok{=} \FunctionTok{with}\NormalTok{(playbill, }\DecValTok{399637} \SpecialCharTok{+} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{*} \FunctionTok{qt}\NormalTok{(}\FloatTok{0.975}\NormalTok{, }\DecValTok{16}\NormalTok{) }\SpecialCharTok{*} \DecValTok{18010} \SpecialCharTok{*} 
+  \FunctionTok{sqrt}\NormalTok{(}\DecValTok{1}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{/}\DecValTok{18}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{400000} \SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(LastWeek)) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{/} \FunctionTok{sum}\NormalTok{((LastWeek }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(LastWeek)) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{450,000 is not a feasible value for the gross box office results
+in the current week for a production with \$400,000 in gross box office
+the previous week}
+
+\begin{verbatim}
+## [1] 359826.9 439447.1
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Some promoters of Broadway plays use the prediction rule that next
+  week's gross box office results will be equal to this week's gross box
+  office results. Comment on the appropriateness of this rule.
+\end{enumerate}
+
+\textbf{This rule seems reasonable as our last weeks value is included
+in our 95\% prediction interval for next week}
+
+\hypertarget{show-that-varyixi-xi-vari-in-the-simple-linear-regression-model.-dont-overthink-this-the-answer-is-simple.-what-did-you-assume-in-answering-this}{%
+\section{\texorpdfstring{2. Show that
+Var(Y\textsubscript{i}\textbar X\textsubscript{i} = x\textsubscript{i})
+= Var(\$\epsilon\textsubscript{i}) in the simple linear regression
+model. Don't overthink this; the answer is simple. What did you assume
+in answering
+this?}{2. Show that Var(Yi\textbar Xi = xi) = Var(\$i) in the simple linear regression model. Don't overthink this; the answer is simple. What did you assume in answering this?}}\label{show-that-varyixi-xi-vari-in-the-simple-linear-regression-model.-dont-overthink-this-the-answer-is-simple.-what-did-you-assume-in-answering-this}}
+
+\newpage
+
+\hypertarget{define-using-only-words-what-the-least-squares-criterion-is.}{%
+\section{3. Define using only words what the least squares criterion
+is.}\label{define-using-only-words-what-the-least-squares-criterion-is.}}
+
+Simply put, the least squares criterion is when we are fitting a
+regression model we select the model that minimizes the sum of the
+square errors. In other words, we minimize the sum of the squares of the
+projections from our data to the model space.
+
+\hypertarget{question-4-page-40-in-our-textbook-except-do}{%
+\section{4. Question 4, page 40 in our textbook, except
+do:}\label{question-4-page-40-in-our-textbook-except-do}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Straight-line regression through the origin: In this question we shall
+  make the following assumptions:
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\tightlist
+\item
+  Y is related to x by the simple linear regression model:
+  Y\textsubscript{i} = BX\textsubscript{i}+e\textsubscript{i} (i =
+  1,2,3,\ldots) i.e.~E(Y\textbar X=x\textsubscript{i}) =
+  BX\textsubscript{i}
+\item
+  The errors
+  e\textsubscript{1},e\textsubscript{2},\ldots,e\textsubscript{n} are
+  independent of each other
+\item
+  The errors
+  e\textsubscript{1},e\textsubscript{2},\ldots,e\textsubscript{n} have a
+  common variance sigma\textsuperscript{2}
+\item
+  The errors are normally distributed with a mean of 0 and variance
+  sigma\textsuperscript{2} (especially when the sample size is small),
+  i.e., (e\textbar X)\textasciitilde{}\N(0, sigma\textsuperscript{2})
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  Setup:
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\roman{enumi}.}
+\tightlist
+\item
+  Write down your design matrix X.\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+\item
+  Show, using matrix notation and starting with the principle of least
+  squares, that the least squares estimate of B is given by:\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+  ~\\
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Under the above assumptions show that:
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\roman{enumi}.}
+\item
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+\item
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+  \hfill\break
+\end{enumerate}
+
+\end{document}
