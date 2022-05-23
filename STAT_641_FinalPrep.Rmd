@@ -1,0 +1,448 @@
+---
+title: "Stat641 Final Prep (HW#7 Redo)"
+output: pdf_document
+---
+## 1
+A researcher presents you with the following data Yi, i = 1, 2, . . . 29, which is independent and
+identically normally distributed with a mean µ and variance σ^2
+
+## 1.1  Set up the rejection region for testing the hypotheses H0 : µ = 20 vs H1 : µ 6= 20, based on Y1, . . . , Y29
+and α = 0.05. Assume σ is unknown.
+
+
+## 1.2 Calculate the power of your test for the following values of the true parameter µ:
+19.9, 19.95, 19.99, 20, 20.05, 20.1, 20.15, 20.2, 20.25, 20.3, 20.4, 20.5.
+The researcher provides the estimate, ˆσ = .43. This value of σ should just be used in the power
+calculation and not in the actual testing procedure. Use your results to sketch a power curve for your
+test. Be sure to label your axes clearly.
+
+```{r}
+mus = c(19.9, 19.95, 19.99, 20, 20.05, 20.1, 20.15, 20.2, 20.25, 20.3, 20.4, 20.5)
+
+tprod_power_twosideed(mus, 20,0.43,n=29,alpha=0.05)
+
+```
+
+## 1.3 Determine the necessary sample size so that the power at µ = 20.15 is at least 0.80 for a level α = .05
+test of H0 : µ ≤ 20 vs H1 : µ > 20.
+
+
+```{r}
+power.t.test(n=,delta = 20.15-20, sd=0.43,sig.level = 0.05,power = .80,type = c("one.sample"),alternative = "one.sided")
+
+```
+
+
+
+## 2
+A new additive has been formulated to reduce the reaction time in a chemical process. With the
+previously used additive, the average reaction time was 10 minutes. In order to evaluate the effectiveness of
+the new additive, 15 batches of the material are formulated and the new additive is placed in the batches.
+From previous studies, reaction times appear to have a normal distribution.
+
+### 2.1
+The mean reaction time from the 15 batches was 8.7 minutes with a standard deviation of 2 minutes.
+Is there significant evidence using an α = .01 test that the average reaction time has been reduced?
+Include the p-value with your decision.
+
+
+```{r}
+
+mo = 10
+x_bar = 8.7
+sigma_hat = 2
+n = 15
+alpha = 0.01
+
+Tx = sqrt(n)*(x_bar-mo)/sigma_hat 
+
+pt(Tx,n-1)
+
+```
+Based on the p-value, we would fail to reject the null.  Similarly, we could use the test statistic:
+
+```{r}
+
+qt(alpha,n-1)
+Tx
+
+Tx-qt(alpha,n-1)
+
+c(x_bar,mo-qt(1-alpha,n-1)*sigma_hat/sqrt(n))
+
+```
+
+
+2.2 The process engineer had claimed that the new additive will reduce the average reaction time by at
+least 1.5 minutes. What is the probability that the experiment will be able to detect a reduction of
+the average reaction to 8.5 minutes or smaller using α = .01?
+
+
+```{r}
+power.t.test(n = 15, delta = 1.5, sd = 2, sig.level = 0.01, power =, alternative = c("one.sided"), type = c("one.sample"))
+
+```
+
+alternative method to calculate power
+```{r}
+
+pt(qt(0.01,14),14,sqrt(15)*(8.5-10)/2)
+
+```
+
+
+
+2.3  A new study is to be designed. What sample size is needed for an α = .05 test to have at least an 80%
+chance to detect that the average reaction time is 9 minutes or less?
+
+```{r}
+
+power.t.test(n = , delta = 1, sd = 2, sig.level = 0.05, power = 0.80, type = c("one.sample"), alternative = c("one.sided"))
+
+```
+
+
+
+3.) A new device has been developed which allows patients to evaluate their blood sugar levels.
+The most widely device currently on the market yields widely variable results. The new device is evaluated
+by 25 patients having nearly the same distribution of blood sugar levels yielding the following data:
+
+```{r}
+data = c(125, 123, 117, 123, 115, 112, 128, 118, 124, 111, 116, 109, 125, 120, 113, 123, 112, 118,
+121, 118, 122, 115, 105, 118, 131)
+ 
+
+```
+
+
+3.1 Is there significant evidence (α = .10) that the standard deviation in the readings from the new device
+is less than 10?
+
+```{r}
+
+# first check if the data is normally distributed
+
+shapiro.test(sort(data))
+
+# p-value
+TS = (length(data)-1)*var(data)/10^2
+
+pchisq(TS,length(data)-1)
+
+
+```
+
+3.2 Compute the probability of a Type II error in using your test from part 1. for the following values of
+σ: 5, 6, 7, 8, 9, 10
+
+```{r}
+n = length(data)
+alpha = 0.10
+sigma0 = 10
+sigma = seq(5,10)
+power = pchisq(((sigma0^2)/(sigma^2))*qchisq(alpha,n-1),n-1)
+TypeIIerror = 1-power
+cbind(sigma,TypeIIerror)
+
+```
+
+
+4.) (10 points) Refer to the blood sugar device data in Problem 3.
+4.1 Is there significant (α = .05) evidence that median blood sugar readings was less than 120 in the
+population from which the 25 patients were selected? Use the sign test and report the p-value.
+
+```{r}
+
+med0=120
+x = data-med0
+n = length(x)-sum(data==med0)
+
+s_plus = sum(x>0)
+
+data[which(x>0)]
+
+pbinom(s_plus,size = n,prob = .5)
+
+```
+
+4.2 Is there significant (α = .05) evidence that median blood sugar readings was less than 120 in the
+population from which the 25 patients were selected? Use the Wilcoxon signed rank test and report
+the p-value.
+
+
+```{r}
+
+data = c(125, 123, 117, 123, 115, 112, 128, 118, 124, 111, 116, 109, 125, 120, 113, 123, 112, 118,
+121, 118, 122, 115, 105, 118, 131)
+med0 = 120
+
+
+
+wilcox.signed.rank.test.one = function(y,med0,alpha,alternative = c("g","l","ne")){
+  
+  x = y-med0
+  x = x[-which(x==0)]
+  n = length(x)
+  Group = c(x>0)
+
+  grouped = as.data.frame(cbind(x,Group))
+  grouped=grouped[order(abs(grouped[,1])),]
+  grouped$rank = seq(1:length(grouped[,1]))
+
+  for(i in abs(grouped$x)){
+    rank_temp = grouped$rank[which(abs(grouped$x) == i)]
+    if(length(rank_temp>1)){
+      grouped$rank[which(abs(grouped$x) == i)] = sum(rank_temp)/length(rank_temp)
+    }
+  }
+  wp = sum(grouped$rank[which(grouped$Group == 1)])
+  wn = sum(grouped$rank[which(grouped$Group == 0)])
+  wm = max(wp,wn)
+  
+  if(alternative == c("g")){
+    critval = qsignrank(alpha,n,FALSE)
+    pval = psignrank(wp-1,n,FALSE)
+    true_level = psignrank(qsignrank(alpha,n,FALSE)-1,n,FALSE)
+    
+    
+    return(cat("Reject Null if W+ =",wp,">",critval, 
+               "\nP-value = ",pval,
+               "\nTrue level of Test=",true_level))
+    
+  }else if(alternative == c("l")){
+    critval = qsignrank(alpha,n,TRUE)
+    pval = psignrank(wp,n,TRUE)
+    true_level = psignrank(qsignrank(alpha,n,TRUE),n,TRUE)
+    
+    return(cat("Reject Null if W+ =",wp,"<",critval, 
+               "\nP-value = ",pval,
+               "\nTrue level of Test=",true_level))
+    
+  }else if(alternative == c("ne")){
+    critval = qsignrank(alpha/2,n,FALSE)
+    pval = 2*psignrank(wm-1,n,FALSE)
+    true_level = 2*psignrank(qsignrank(alpha/2,n,FALSE)-1,n,FALSE)
+    
+    return(cat("Reject Null if Wmax =",wm,">",critval, 
+               "\nP-value = ",pval,
+               "\nTrue level of Test=",true_level))
+    
+  }
+  
+  
+  
+}
+
+
+
+wilcox.signed.rank.test.one(y = data,med0, alpha = 0.05, alternative = c("l"))
+
+
+x = x[-c(which(x==0))]
+y = rep(med0, times = length(x))
+
+wilcox.test(x,y, alternative = "l",paired = T)
+
+```
+
+
+
+4.3 Place a 90% upper bound on the median blood sugar reading.
+
+
+
+
+
+5.) The current method of identifying patients at risk of sudden cardiac death can be identified
+with 80% accuracy. A change in the method has hopefully improved the accuracy. To evaluate the new
+method, 100 people are tested and the new method produced the result on 92 of the 100 people.
+
+
+5.1 Place a 95% confidence interval on the accuracy of the device.
+
+```{r}
+
+### Agrestic Coull CI
+
+agresti.coullCI = function(y,n,alpha){
+
+  if((n < 40) | min(n*(y/n),n*(1-(y/n))) < 5){
+    
+    return("Assumptions are not met, Agresti-Coull CI is not appropriate")
+  }else{
+    y_tild = y+.5*(qnorm(1-alpha/2)^2)
+    n_tild = n+qnorm(1-alpha/2)^2
+
+    p_tild = y_tild/n_tild
+
+    CI = c(p_tild - qnorm(1-alpha/2)*((sqrt(p_tild*(1-p_tild)))/sqrt(n)),p_tild +  qnorm(1-alpha/2)*((sqrt(p_tild*(1-p_tild)))/sqrt(n))) 
+ 
+return(CI)
+    
+    
+  }
+  
+}
+
+
+agresti.coullCI(y = 92, n = 100, alpha = .05)
+
+```
+
+
+5.2 Is there substantial evidence (α = .05) that the improved method has increased the accuracy over the
+current method?
+
+```{r}
+
+test.pop.proportion = function(y="",p_hat = "",n,p0,alpha, alternative = c("l","g","ne")){
+  if(p_hat == ""){
+    p_hat = y/n
+  }
+  
+  if(y == ""){
+    y = p_hat*n
+  }
+  
+  if((min(p_hat*n,n*(1-p_hat)) < 5) | n<40){
+    
+    if(alternative == c("g")){
+      
+      critval = qbinom(1-alpha,n,p0)
+      p_val = 1-pbinom(y-1,n,p0)
+      
+      return(cat("Reject Null if Y=",y,">",critval,
+                 "\nP-value =",p_val))
+      
+    }else if(alternative == c("l")){
+      
+      critval = qbinom(alpha,n,p0)
+      p_val = pbinom(Y,n,p0) 
+      
+      return(cat("Reject Null if Y=",y,"<",critval,
+                 "\nP-value =",p_val))
+      
+    }else if(alternative == c("ne")){
+      
+      critval = c(qbinom(alpha/2,n,p0),qbinom(1-alpha/2,n,p0))
+      p_val = 2*min(pbinom(y,n,p0),1-pbinom(y-1,n,p0))
+      
+      return(cat("Reject Null if Y=",y,"<",critval[1],"or Y =",y,">",critval[2],
+                 "\nP-value =",p_val))
+      
+    }
+    
+    
+    
+  }else{
+    
+    TS = (p_hat - p0)/sqrt((p0*(1-p0))/n)
+    
+    if(alternative == c("g")){
+      critval = qnorm(1-alpha)
+      p_val = 1-pnorm(TS)
+      
+      return(cat("Reject Null if TS=",TS,">",critval,
+                 "\nP-value =",p_val))
+      
+    }else if(alternative == c("l")){
+      
+      critval = qnorm(alpha)
+      p_val = pnorm(TS)
+      
+      return(cat("Reject Null if TS=",TS,"<",critval,
+                 "\nP-value =",p_val))
+      
+    }else if(alternative == c("ne")){
+      
+      critval = qnorm(1-alpha/2)
+      p_val = 2*(1-pnorm(abs(TS)))
+      
+      return(cat("Reject Null if |TS|=",abs(TS),">",critval,
+                 "\nP-value =",p_val))
+      
+      
+    }
+    
+    
+  }
+  
+}
+
+
+test.pop.proportion(y=92,n=100,p0=0.8,alpha = .05, alternative = c("g"))
+
+```
+
+
+5.3 Compute the power of the test in part 2. to detect that the accuracy of the improved method is 75%,
+80%, 85%, 90%, 95%.
+
+
+```{r}
+
+ps = seq(.75,.95,by=.05)
+ys = 1-pbinom(qbinom(.95,100,.8)-1,100,ps)
+cbind(ps, ys)
+
+qbinom(.95,100,.8)
+
+```
+
+
+5.4 How many patients would need to be included in a new study in order to have a power value of 80%
+if the new method had an accuracy of 90%.
+
+```{r}
+
+### sample size calucaltion for population proportion p
+
+sample.size.pop.prop = function(p0,p1,alpha,beta){
+  
+  delta = abs(p1-p0)
+  z_a = abs(qnorm(alpha))
+  z_b = abs(qnorm(beta))
+  
+  n = ceiling((((z_a*sqrt(p0*(1-p0)))+(z_b*sqrt(p1*(1-p1))))/delta)^2)
+  
+  return(n)
+}
+
+
+sample.size.pop.prop(p0 = .8,p1=.9, alpha = .05, beta = .80)
+
+
+```
+
+(MC5.) A researcher wants to determine if there is an increase in the likelihood that people will purchase a product
+after a redesign of the product. The current market share is 20%. Initially, the researcher was planning on
+using a random sample of n=20 persons with an α = .05 test to evaluate the product. He wants you to
+calculate the chance that the study will fail to detect that preference for the product has been increased if
+in fact the preference for the new product is 40%. This chance is
+
+```{r}
+
+pbinom(qbinom(1-.05,20,.20),20,.40)
+
+```
+
+(MC6)  A random sample of n=15 from a normally distributed population is used to construct a level α = .01 test
+of Ho : µ ≤ 20 versus H1 : µ > 20, where µ is the mean of the population. The probability of a Type II
+error for µ > 20 + .8σ is at most
+
+
+```{r}
+typeIIerrorprob = pt(qt(1-.01, 15 - 1), 15 - 1, sqrt(15)*.8)
+typeIIerrorprob
+
+```
+(MC7) A psychologist is investigating the IQ level of young children who have been in a head start program. She
+wants to determine if the variation in IQ scores for the population of head start students is smaller than
+the variation in the general population of children under the age of 6 which has a variation of σ = 10.2.
+She also informs you that the distribution of IQ scores is highly right skewed. Suppose she uses the test:
+reject Ho is
+
+
+
+
+
