@@ -1,0 +1,561 @@
+alpha <- 0.01
+(sg ^ 2 / delta ^ 2) * (qnorm(0.995) + qnorm(0.5))
+(sg ^ 2 / delta ^ 2) * (qnorm(0.995) + qnorm(0.5)) ^ 2
+q()
+(33 - 17) / 8
+1 - pnorm(2)
+1 - 0.9772
+(33 - 33) / 8
+(33 - 17) / 8
+(25 - 17) / 8
+0.9772 - 0.8413
+mu <- 2.35
+sg <- 1.4
+1 - pnorm(log10(250), mu, sg)
+log10(250)
+(log10(250) - mu) / sg
+1 - 0.5120
+qnorm(0.995)
+q()
+1.5 * 1.5
+q()
+1 - pnorm(log10(250), 2.35, 1.4)
+4.83 + c(-1, 1) * 1.96 * 2 / 10
+q()
+qnorm(0.995)
+qnorm(0.5)
+(12^2 / 10^2) * (qnorm(0.995) + qnorm(0.5)) ^ 2
+(12 / 10) * (qnorm(0.995) + qnorm(0.5)) ^ 2
+1.495356 / 0.32193
+2 * (1 - pnorm(4.644973))
+qnorm(0.95)
+qnorm(0.99)
+(0.5 / 0.1) ^ 2 * (2.575 + 0) ^ 2
+q()
+1 / sqrt(14)
+q()
+9.87625 / sqrt(86)
+q()
+cornflk <- c(2.25, 3.8, 3.82, 3.89, 3.98, 4.24, 4.34, 4.54, 4.56, 4.61, 5.01, 5.35, 5.4, 6.42)
+table(cornflk < 4)
+5 / 14
+table(cornflk > 3)
+13 / 14
+table(cornflk >= 3 & cornflk <= 5)
+9 / 14
+q()
+sqrt(3) / 6
+q()
+qnorm(0.99)
+q()
+(5 - 3) / 5
+q()
+pbinom(5, 1000, 0.002)
+? pbinom
+dbinom(5, 1000, 0.002)
+q()
+1 - pf(2.18, 9, 210)
+q()
+11/ 20
+sqrt(3) / 10
+(4 / 9) * (2.575 + 0) ^ 2
+(4 / 9) * (2.575 + 1.28) ^ 2
+(3 - 5) / 5
+(5 - 3) / 5
+(10 - 3) / 5
+q()
+0.478 * 10328265
+10328265 - 4936911
+0.522 * 11299542
+11299542 - 5898361
+q()
+sqrt(134.47)
+q()
+hw <- c(38, 25, 23, 24, 29, 15, 9, 30, 36, 24, 28)
+hw_pts <- c(40, 30, 38, 46, 29, 29, 28, 38, 53, 24, 32)
+hw / hw_pts
+mean(hw / hw_pts)
+ex <- 15 / 25
+ex
+73.6 * 0.4 + 60 * 0.6
+pi_1_hat <- 0.4412
+30 / 93
+pi_1_hat <- 0.3226
+pi_2_hat <- 0.4810
+38 / 79
+sg_hat <- sqrt(pi_1_hat * (1 - pi_1_hat) / 93 + pi_2_hat * (1 - pi_2_hat) / 79)
+pi_1_hat - pi_2_hat + c(-1, 1) * 1.96 * sg_hat
+q()
+1 - 0.98702
+q()
+110 - 75
+1.96 ^ 2 * 0.5 * 0.5 / 0.15 ^ 2
+sqrt(3.25 / 100)
+q()
+qnorm(0.95)
+1.96^2 * 0.003 * (1 - 0.003) / 0.01^2
+choose(1000, 5) * 0.002 ^ 5 * (1 - 0.002) ^ 995
+0.00055 - 0.00016
+sqrt(158)
+sqrt(46.8783)
+sqrt(0.50667 * (1 - 0.50667) / 225)
+1.96^2 * 0.5 * 0.5 / 0.05^2
+0.50667 - 0.49333
+225 * 439 / 871
+q()
+pi_1_hat <- 0.4810
+pi_2_hat <- 0.3226
+38 / 68
+30 / 68
+38 / 79
+30 / 93
+q()
+pi_hat <- 0.50909
+pi_hat + c(-1, 1) * 1.96 * sqrt(pi_hat * (1 - pi_hat) / 110)
+0.5091 + c(-1, 1) * 1.96 * sqrt(0.5091 * (1 - 0.5091) / 110)
+q()
+pi_1_hat <- 38 / 79
+pi_2_hat <- 30 / 93
+1 - pbinom(2, 10, 0.5)
+1 - 0.9453
+0.9453 - 0.9336
+pbinom(2, 8, 0.3333)
+pbinom(2, 8, 1/6)
+24 * 5
+q()
+pi_hat_1 <- 38 / 79
+pi_hat_1
+pi_hat_2 <- 0.3226
+30 / 93
+se_hat <- sqrt(pi_hat_1 * (1 - pi_hat_1) / 79 + pi_hat_2 * (1 - pi_hat_2) / 93)
+se_hat
+pi_hat_1 - pi_hat_2
+pi_hat <- 163 / 275
+qnorm(0.95)
+pi_hat + c(-1, 1) * 1.6449 * sqrt(pi_hat * (1 - pi_hat) / 275)
+pi_hat + c(-1, 1) * 1.96 * sqrt(pi_hat * (1 - pi_hat) / 275)
+pi_hat
+q()
+93.307121 + 50 * 0.9459969
+q()
+93.307121 + 0.9459969 * 50
+93.307121 + 0.9459969 * 50000
+q()
+93.307121 + 0.9459969 * 55
+2021.0747 - 11.47428 * 30
+q()
+10.127289 - 0.019127 * 51
+q()
+82.421773 - 3.310555 * 10.85
+q()
+93.307121 + 0.9459969 * 55
+93.307121 + 0.9459969 * 55000
+0.5046 - 0.4954
+pi_hat_1 <- 110 / 218
+pi_hat_1
+pi_hat_2 <- 0.4954
+pi_hat_1 + c(-1, 1) * 1.96 * sqrt(pi_hat_1 * (1 - pi_hat_1) / 218)
+110 / 439 - 108 / 432
+9.3481694 + 0.6519287 * 20
+9.3481694 + 0.6519287 * 50 - 7.461751
+9.3481694 + 0.6519287 * 50
+q()
+742.95455 - 98.40909 * 2
+867.6427 - 168.7194 * 2 + 7.6198317 * 4
+848.15789 + 856.57895 - 248.6842 * 2
+q(0)
+q()
+seq(1, 6)
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")
+run = c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,#
+15,15,16,16,17,17,18,18)#
+Res = c(#
+ 136.75, 138.75,#
+ 137.75, 139.75,#
+ 136.25, 138.75,#
+ 146.75, 148.75,#
+ 149.25, 145.25,#
+ 146.75, 148.25,#
+ 147.25, 149.25,#
+ 150.75, 148.75,#
+ 146.25, 148.75,#
+ 136.65, 138.85,#
+ 137.55, 139.55,#
+ 140.45, 137.95,#
+ 166.75, 168.25,#
+ 157.25, 161.25,#
+ 162.25, 165.25,#
+ 122.75, 124.75,#
+ 124.25, 127.25,#
+ 118.75, 120.25)#
+spec = seq(1,6)#
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")
+rect(0.75,149,3.25,163)
+segments(1,154,1,156)#
+segments(2,151,2,154)#
+segments(3,154,3,161)#
+text(1,147,"R1",cex=.55)#
+text(2,147,"R2",cex=.55)#
+text(3,147,"R3",cex=.55)#
+text(2,143,"SPEC1",cex=.75)
+? rect
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,135,3.25,140.5)
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,133,3.25,142.5)
+segments(1,136.75,1,136.75)
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,133,3.25,142.5)#
+segments(1,136.75,1,136.75)#
+segments(2,137.75,2,139.75)#
+segments(3,136.25,3,138.75)#
+text(1,130,"R1",cex=.55)#
+text(2,130,"R2",cex=.55)#
+text(3,130,"R3",cex=.55)#
+text(2,126,"SPEC1",cex=.75)
+146.75 - 3.75
+149.25 + 3.75
+rect(3.75,143,6.25,153)
+segments(4,146.75,4,148.75)#
+segments(5,149.25,5,145.25)#
+segments(6,146.75,6,148.25)#
+text(4,140,"R4",cex=.55)#
+text(5,140,"R5",cex=.55)#
+text(6,140,"R6",cex=.55)#
+text(5,136,"SPEC2",cex=.75)
+147.25 - 3.75
+146.25 - 3.75
+150.75 + 3.75
+rect(6.75,142.5,9.25,154.5)
+146.25 - 2.25
+150.75 + 2.25
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,133,3.25,142.5)#
+segments(1,136.75,1,136.75)#
+segments(2,137.75,2,139.75)#
+segments(3,136.25,3,138.75)#
+text(1,130,"R1",cex=.55)#
+text(2,130,"R2",cex=.55)#
+text(3,130,"R3",cex=.55)#
+text(2,126,"SPEC1",cex=.75)
+rect(3.75,143,6.25,153)#
+segments(4,146.75,4,148.75)#
+segments(5,149.25,5,145.25)#
+segments(6,146.75,6,148.25)#
+text(4,140,"R4",cex=.55)#
+text(5,140,"R5",cex=.55)#
+text(6,140,"R6",cex=.55)#
+text(5,136,"SPEC2",cex=.75)
+rect(6.75,144,9.25,153)
+segments(7,147.24,7,149.25)#
+segments(8,150.75,8,148.75)#
+segments(9,146.25,9,148.75)#
+text(7,141,"R7",cex=.55)#
+text(8,141,"R8",cex=.55)#
+text(9,141,"R9",cex=.55)#
+text(8,137,"SPEC3",cex=.75)
+136.65 - 2.25
+140.45 + 2.25
+rect(9.75,134.4,12.25,142.7)#
+segments(10,136.65,10,138.85)#
+segments(11,137.55,11,139.55)#
+segments(12,140.45,12,137.95)#
+text(10,131.4,"R10",cex=.55)#
+text(11,131.4,"R11",cex=.55)#
+text(12,131.4,"R12",cex=.55)#
+text(11,127.4,"SPEC4",cex=.75)
+157.25 - 2.25
+168.25 + 2.25
+rect(12.75,155,15.25,170.5)#
+segments(13,166.75,13,168.25)#
+segments(14,157.25,14,161.25)#
+segments(15,162.25,15,165.25)#
+text(13,152,"R13",cex=.55)#
+text(14,152,"R14",cex=.55)#
+text(15,152,"R15",cex=.55)#
+text(14,148,"SPEC5",cex=.75)
+118.75 - 2.25
+127.25 + 2.25
+rect(15.75,116.5,18.25,129.5)#
+segments(16,122.75,16,124.75)#
+segments(17,124.25,17,127.25)#
+segments(18,118.75,18,120.25)#
+text(16,113.5,"R16",cex=.55)#
+text(17,113.5,"R17",cex=.55)#
+text(18,113.5,"R18",cex=.55)#
+text(17,109.5,"SPEC6",cex=.75)
+mean(res)
+mean(Res)
+axis(side=1,at=c(3.5,9.5,15.5),#
+labels=c("Operator 1","Operator 2","Operator 3"))#
+segments(6.5,143.1667,19,143.1667)#
+text(12,145,"mean of 36 chemical analyses")
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,133,3.25,142.5)#
+segments(1,136.75,1,136.75)#
+segments(2,137.75,2,139.75)#
+segments(3,136.25,3,138.75)#
+text(1,130,"R1",cex=.55)#
+text(2,130,"R2",cex=.55)#
+text(3,130,"R3",cex=.55)#
+text(2,126,"SPEC1",cex=.75)#
+#
+rect(3.75,143,6.25,153)#
+segments(4,146.75,4,148.75)#
+segments(5,149.25,5,145.25)#
+segments(6,146.75,6,148.25)#
+text(4,140,"R4",cex=.55)#
+text(5,140,"R5",cex=.55)#
+text(6,140,"R6",cex=.55)#
+text(5,136,"SPEC2",cex=.75)#
+#
+rect(6.75,144,9.25,153)#
+segments(7,147.24,7,149.25)#
+segments(8,150.75,8,148.75)#
+segments(9,146.25,9,148.75)#
+text(7,141,"R7",cex=.55)#
+text(8,141,"R8",cex=.55)#
+text(9,141,"R9",cex=.55)#
+text(8,137,"SPEC3",cex=.75)#
+#
+rect(9.75,134.4,12.25,142.7)#
+segments(10,136.65,10,138.85)#
+segments(11,137.55,11,139.55)#
+segments(12,140.45,12,137.95)#
+text(10,131.4,"R10",cex=.55)#
+text(11,131.4,"R11",cex=.55)#
+text(12,131.4,"R12",cex=.55)#
+text(11,127.4,"SPEC4",cex=.75)#
+#
+rect(12.75,155,15.25,170.5)#
+segments(13,166.75,13,168.25)#
+segments(14,157.25,14,161.25)#
+segments(15,162.25,15,165.25)#
+text(13,152,"R13",cex=.55)#
+text(14,152,"R14",cex=.55)#
+text(15,152,"R15",cex=.55)#
+text(14,148,"SPEC5",cex=.75)#
+#
+rect(15.75,116.5,18.25,129.5)#
+segments(16,122.75,16,124.75)#
+segments(17,124.25,17,127.25)#
+segments(18,118.75,18,120.25)#
+text(16,113.5,"R16",cex=.55)#
+text(17,113.5,"R17",cex=.55)#
+text(18,113.5,"R18",cex=.55)#
+text(17,109.5,"SPEC6",cex=.75)#
+#
+axis(side=1,at=c(3.5,9.5,15.5),#
+labels=c("Operator 1","Operator 2","Operator 3"))#
+abline(143.1667, 0)
+text(15,140,"mean of 36 chemical analyses")
+text(15,140,"mean of 36 chemical analyses", cex = 0.5)
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,133,3.25,142.5)#
+segments(1,136.75,1,136.75)#
+segments(2,137.75,2,139.75)#
+segments(3,136.25,3,138.75)#
+text(1,130,"R1",cex=.55)#
+text(2,130,"R2",cex=.55)#
+text(3,130,"R3",cex=.55)#
+text(2,126,"SPEC1",cex=.75)#
+#
+rect(3.75,143,6.25,153)#
+segments(4,146.75,4,148.75)#
+segments(5,149.25,5,145.25)#
+segments(6,146.75,6,148.25)#
+text(4,140,"R4",cex=.55)#
+text(5,140,"R5",cex=.55)#
+text(6,140,"R6",cex=.55)#
+text(5,136,"SPEC2",cex=.75)#
+#
+rect(6.75,144,9.25,153)#
+segments(7,147.24,7,149.25)#
+segments(8,150.75,8,148.75)#
+segments(9,146.25,9,148.75)#
+text(7,141,"R7",cex=.55)#
+text(8,141,"R8",cex=.55)#
+text(9,141,"R9",cex=.55)#
+text(8,137,"SPEC3",cex=.75)#
+#
+rect(9.75,134.4,12.25,142.7)#
+segments(10,136.65,10,138.85)#
+segments(11,137.55,11,139.55)#
+segments(12,140.45,12,137.95)#
+text(10,131.4,"R10",cex=.55)#
+text(11,131.4,"R11",cex=.55)#
+text(12,131.4,"R12",cex=.55)#
+text(11,127.4,"SPEC4",cex=.75)#
+#
+rect(12.75,155,15.25,170.5)#
+segments(13,166.75,13,168.25)#
+segments(14,157.25,14,161.25)#
+segments(15,162.25,15,165.25)#
+text(13,152,"R13",cex=.55)#
+text(14,152,"R14",cex=.55)#
+text(15,152,"R15",cex=.55)#
+text(14,148,"SPEC5",cex=.75)#
+#
+rect(15.75,116.5,18.25,129.5)#
+segments(16,122.75,16,124.75)#
+segments(17,124.25,17,127.25)#
+segments(18,118.75,18,120.25)#
+text(16,113.5,"R16",cex=.55)#
+text(17,113.5,"R17",cex=.55)#
+text(18,113.5,"R18",cex=.55)#
+text(17,109.5,"SPEC6",cex=.75)#
+#
+axis(side=1,at=c(3.5,9.5,15.5),#
+labels=c("Operator 1","Operator 2","Operator 3"))#
+abline(143.1667, 0)#
+text(15,140,"mean of 36 chemical analyses", cex = 0.7)
+plot(run,Res,type="p",xlab="Operators",ylab="Chemical Level",#
+        main="Figure 3: Chemical Variation Plot ",cex=.99,#
+        ylim=c(80,200),xaxt="n")#
+rect(0.75,133,3.25,142.5)#
+segments(1,136.75,1,136.75)#
+segments(2,137.75,2,139.75)#
+segments(3,136.25,3,138.75)#
+text(1,130,"R1",cex=.55)#
+text(2,130,"R2",cex=.55)#
+text(3,130,"R3",cex=.55)#
+text(2,126,"SPEC1",cex=.75)#
+#
+rect(3.75,143,6.25,153)#
+segments(4,146.75,4,148.75)#
+segments(5,149.25,5,145.25)#
+segments(6,146.75,6,148.25)#
+text(4,140,"R4",cex=.55)#
+text(5,140,"R5",cex=.55)#
+text(6,140,"R6",cex=.55)#
+text(5,136,"SPEC2",cex=.75)#
+#
+rect(6.75,144,9.25,153)#
+segments(7,147.24,7,149.25)#
+segments(8,150.75,8,148.75)#
+segments(9,146.25,9,148.75)#
+text(7,141,"R7",cex=.55)#
+text(8,141,"R8",cex=.55)#
+text(9,141,"R9",cex=.55)#
+text(8,137,"SPEC3",cex=.75)#
+#
+rect(9.75,134.4,12.25,142.7)#
+segments(10,136.65,10,138.85)#
+segments(11,137.55,11,139.55)#
+segments(12,140.45,12,137.95)#
+text(10,131.4,"R10",cex=.55)#
+text(11,131.4,"R11",cex=.55)#
+text(12,131.4,"R12",cex=.55)#
+text(11,127.4,"SPEC4",cex=.75)#
+#
+rect(12.75,155,15.25,170.5)#
+segments(13,166.75,13,168.25)#
+segments(14,157.25,14,161.25)#
+segments(15,162.25,15,165.25)#
+text(13,152,"R13",cex=.55)#
+text(14,152,"R14",cex=.55)#
+text(15,152,"R15",cex=.55)#
+text(14,148,"SPEC5",cex=.75)#
+#
+rect(15.75,116.5,18.25,129.5)#
+segments(16,122.75,16,124.75)#
+segments(17,124.25,17,127.25)#
+segments(18,118.75,18,120.25)#
+text(16,113.5,"R16",cex=.55)#
+text(17,113.5,"R17",cex=.55)#
+text(18,113.5,"R18",cex=.55)#
+text(17,109.5,"SPEC6",cex=.75)#
+#
+axis(side=1,at=c(3.5,9.5,15.5),#
+labels=c("Operator 1","Operator 2","Operator 3"))#
+abline(143.1667, 0)#
+text(16,140,"mean of 36 chemical analyses", cex = 0.7)
+q()
+15 * 5 * 4 * 4.5
+5000 / 15
+330 / 13
+15 * 15 * 13
+q()
+exp(-((23 - 5) / 20) ^ 4)
+20 * (-log(1 - 0.25)) ^ (1 / 4) + 5
+1 - exp(-0.15) * (1 + 0.15)#
+ppois(1, 0.15)
+1 - exp(-0.15) * (1 + 0.15)#
+1 - ppois(1, 0.15)
+52 * 0.15
+1 - exp(-7.8) * (1 + 7.8)#
+1 - ppois(2, 7.8)
+1 - exp(-7.8) * (1 + 7.8)#
+1 - ppois(1, 7.8)
+(-1.5 * log(1 - 0.26)) ^ (1 / 4)
+1.5 * (-log(1 - 0.26)) ^ (1 / 4)
+pnbinom
+? pnbinom
+dnbinom(0, size = 8, prob = 0.7)#
+choose(8 + 0 - 1, 0) * 0.7 ^ 8 * (1 - 0.7) ^ 0
+pnbinom(0, 8, 0.7)#
+pnbinom(1, 8, 0.7)#
+pnbinom(2, 8, 0.7)#
+pnbinom(3, 8, 0.7)#
+pnbinom(4, 8, 0.7)#
+pnbinom(5, 8, 0.7)
+pbinom(0:10, 20, 0.4)
+0.26 * (2.5 - 0.3) + 0.3
+q()
+56 / 7
+y1 <- scan("ozone1.txt")#
+          y2 <- scan("ozone2.txt")#
+          y1na <- scan("ozone1,na.txt")#
+          y2na <- scan("ozone2,na.txt")
+y1
+y1na
+stem(y1)#
+          stem(y2)#
+          y1#
+          y2#
+          y1s<-sort(y1)#
+          y2s<-sort(y2)
+? plot
+Q1<-quantile(y1,probs<-seq(0,1,.01))#
+          plot(Q1,probs,type="l",xlab="y (ppb)",ylab="F(y)",#
+               ylim=c(0,1),lab=c(12,20,7),cex=.75)#
+          title("Empirical Distribution Function of Stamford Data",cex=.75)
+Q2<-quantile(y2,probs<-seq(0,1,.01))#
+          plot(Q2,probs,type="l",xlab="y (ppb)",ylab="F(y)",#
+               ylim=c(0,1),lab=c(12,20,7),cex=.75)#
+          title("Empirical Distribution Function of Yonkers Data",cex=.75)
+Q1<-quantile(y1,probs<-seq(0,1,.01))#
+          plot(probs,Q1,type="l",ylab="Q(u) (ppb)",xlab="u",ylim=c(0,250),#
+               xlim=c(0,1),lab=c(10,11,7))#
+          title("Empirical Quantile of Stamford Data",cex=.75)
+defects.f <- c(402,321,151,82,20,10,5,3,3,2,1)#
+defects.n <- c("0","1","2","3","4","5","6","7","8","9","10")#
+barplot(prop.table(defects.f),names=defects.n,ylab="Proportions",xlab="Number of Defects",beside=F)#
+title("Histogram for Defectives Data")
+? prop.table
+defects.f
+prop.table(defects.f)
+? barplot
+defects <- c(0,1,2,3,4,5,6,7,8,9,10)
+zero<-c(0,0,0,0,0,0,0,0,0,0,0)
+plot(defects,defects.f/1000,ylab="Sample Estimator of pmf, #
+f(y)",xlab="Number of Defects",lab=c(11,17,4))
+? segments
+segments(defects,zero,defects,defects.f/1000)
+q()
