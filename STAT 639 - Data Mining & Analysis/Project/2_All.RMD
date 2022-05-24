@@ -1,0 +1,1642 @@
+---
+title: "Stat 639 Project Code"
+author: "Jack Rodoni, Josh Kim, Christian Santosa"
+date: "4/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r}
+
+load("C:/Users/jackr/OneDrive/Desktop/Graduate School Courses/STAT 639 - Data Mining and Analysis/Data/class_data.RData")
+
+
+y.fac = as.factor(y)
+data1 = data.frame(y.fac,x)
+
+```
+
+
+#### Supervised Learning
+
+
+Naive Bayes
+```{r}
+require(klaR)
+require(caret)
+require(tidyverse)
+require(e1071)
+
+
+set.seed(69420)
+training.samples <- data1$y.fac %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train.data  <- data1[training.samples, ]
+test.data <- data1[-training.samples, ]
+
+x.train = train.data[,-1]
+y.train = train.data$y.fac
+
+x.test = test.data[,-1]
+y.test = test.data$y.fac
+
+set.seed(69420)
+model = train(x.train,y.train, 
+              method = "nb",
+              trControl = trainControl(method = "repeatedcv",
+                                       number = 10,
+                                       repeats = 5),
+              tuneLength = 5,
+              metric = "Accuracy")
+
+
+model
+
+nb.cv.accuracy = sum(model[["finalModel"]][["apriori"]]*model[["results"]][["Accuracy"]])
+nb.cv.accuracy
+
+pred.NB = predict(model$finalModel,x.test)$class
+cm.nb = confusionMatrix(pred.NB,y.test)
+cm.nb$overall[1]
+
+
+# cm.Accuracy: .5995693
+# pred Accuracy 0.5859
+
+##### NOTE: I get a ton of warnings when running this model and I'm not quite sure why ######
+##### NOTE: The cv accuracy and the prediction accuracy are actually pretty close, we'll try this with boruta
+
+
+detach("package:klaR", unload = TRUE)
+detach("package:caret", unload = TRUE)
+detach("package:e1071", unload = TRUE)
+
+```
+
+
+
+SVM
+```{r}
+require(caret)
+require(tidyverse)
+#require(kernlab)
+
+
+#### NOTE: we have p>n so we may in fact be able to separate our data with a 
+#### linear boundry (see topic2 slide 47)
+#### NOTE: 4/12/22- need to change this to linear kernels
+
+
+
+set.seed(69420)
+training.samples <- data1$y.fac %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train.data  <- data1[training.samples, ]
+test.data <- data1[-training.samples, ]
+
+x.train = train.data[,-1]
+y.train = train.data$y.fac
+# levels(y.train) = c("NEG","POS")# argument only needed when summaryFunction=twoClassSummary
+                                # and classProbs = True are included in the ctrl
+
+x.test = test.data[,-1]
+y.test = test.data$y.fac
+#levels(y.test) = c("NEG","POS") # argument only needed when summaryFunction=twoClassSummary
+                                # and classProbs = True are included in the ctrl
+
+###############################################################################################
+
+ctrl.Svm.Rad = trainControl(method="repeatedcv",   # 10fold cross validation
+                            number = 10,
+                            repeats = 5)  
+Rad.Svm.mod.temp = train(x.train,y.train, method = "svmRadial", 
+                           tuneLength = 10,
+                           trControl = ctrl.Svm.Rad,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+
+Rad.Svm.mod.temp
+
+Rad.svm.pred = predict(Rad.Svm.mod.temp,x.test)
+cm.Rad.SVM = confusionMatrix(Rad.svm.pred,y.test)
+cm.Rad.SVM$overall[1]
+
+
+# CV-accuracy: 0.6028862
+# pred.accuracy: .5959596
+
+
+###############################################################################################
+############################# SVM with Linear Kernel ##########################################
+
+ctrl.svm.lin <- trainControl(method = "repeatedcv",
+                             number = 10,
+                             repeats = 5)             
+                     
+
+set.seed(69420)
+Svm.lin = train(x.train,y.train, method = "svmLinear", 
+               tuneGrid = expand.grid(C= c(1)),
+               trControl = ctrl.svm.lin,
+               preProcess = c("center","scale"),
+               metric = "Accuracy")
+
+Svm.lin
+
+#### doesn't change anything with different values of the cost function... lets increase it a ton. Increased it to 100, didnt change anything wrt the cv accuracy. Just set to 1
+
+
+pred.SVM.lin = predict(Svm.lin,x.test)
+cm.SVM.lin = confusionMatrix(pred.SVM.lin,y.test)
+cm.SVM.lin
+
+# cv.accuracy = 0.5824739
+# pred.accuracy = 0.5152
+
+
+##############################################################################################
+################################ Svm with Polynomial kernel ##################################
+
+ctrl.svm.poly = trainControl(method = "repeatedcv",
+                             number = 10,
+                             repeats = 5)
+set.seed(69420)
+svm.poly = train(x.train,y.train, method = "svmPoly",
+                 tuneLength = 4,
+                 trControl = ctrl.svm.poly,
+                 preProcess = c("center","scale"),
+                 metric = "Accuracy")
+
+max(svm.poly$results$Accuracy)
+
+pred.SVM.poly = predict(svm.poly,x.test)
+cm.SVM.poly = confusionMatrix(pred.SVM.poly,y.test)
+cm.SVM.poly
+
+# Cv accuraccy: 0.6300882
+# pred.accuracy: 0.5556
+
+
+# so far, polynomial kernel has the highest cv accuracy, radial has the best pred. accuracy.
+
+```
+
+
+
+Lasso, Ridge and Elastic Net
+
+```{r}
+require(tidyverse)
+require(glmnet)
+require(caret)
+
+set.seed(69420)
+training.samples <- data1$y.fac %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train.data  <- data1[training.samples, ]
+test.data <- data1[-training.samples, ]
+
+x.train = as.matrix(train.data[,-1])
+y.train = train.data$y.fac
+
+x.test = as.matrix(test.data[,-1])
+y.test = test.data$y.fac
+################################################################################################################################### ridge regression ########################################
+
+set.seed(69420)
+cv.ridge = cv.glmnet(x.train, y.train, alpha=0, family = "binomial", type.measure = "class") 
+cv.ridge
+
+########## Ridge using lambda.1se ##########
+
+mod.ridge.1se = glmnet(x.train,y.train, alpha = 0, 
+                       lambda = cv.ridge$lambda.1se, 
+                       family = "binomial",
+                       type.measure = "class")
+# type.measure = "class" is also an argument in glmnet, didnt use b/c I get worse predictions
+mod.ridge.1se
+
+pred.ridge.1se = as.factor(predict(mod.ridge.1se,x.test, type = "class"))
+
+cm.ridge.1se = confusionMatrix(pred.ridge.1se, y.test)
+cm.ridge.1se
+
+# cv.error.1se: 0.4120 -> class rate: .588
+# pred.err.1se: 0.4141 -> class rate: .5859
+
+
+
+
+########### Ridge using lambda.min ##########
+mod.ridge.min = glmnet(x.train,y.train, alpha = 0, 
+                       lambda = cv.ridge$lambda.min, 
+                       family = "binomial",
+                       type.measure = "class")
+# type.measure = "class" is also an argument in glmnet, didnt use b/c I get worse predictions
+
+# cv.err.min = 0.3821 -> class rate: .6179
+# pred.err.min = 0.404 -> class rate: 0.596
+
+pred.ridge.min = as.factor(predict(mod.ridge.min,x.test, type = "class"))
+
+cm.ridge.min = confusionMatrix(pred.ridge.min, y.test)
+cm.ridge.min
+# NOTE: using lambda.min gives much better results for the predicitons
+
+
+###############################################################################################
+############################################ Lasso ############################################
+
+
+set.seed(69420)
+cv.lasso = cv.glmnet(x.train, y.train, alpha=1, family = "binomial", type.measure = "class") 
+cv.lasso
+##########################################################################################
+###### Lasso using lambda.1se
+
+mod.lasso.1se = glmnet(x.train,y.train, alpha = 1, 
+                       lambda = cv.lasso$lambda.1se, 
+                       family = "binomial",
+                       type.measure = "class")
+# type.measure = "class" is not necessary, I was getting worse preds, but now its the same
+# whether I have the argument in there or not
+
+# cv.err.1se: 0.3721 -> class rate: 0.6279
+# pred.err.1se: 0.4141 -> classrate: 0.5859
+
+
+pred.lasso.1se = as.factor(predict(mod.lasso.1se,x.test, type = "class"))
+
+cm.lasso.1se = confusionMatrix(pred.lasso.1se, y.test)
+cm.lasso.1se
+
+
+
+########### lasso using lambda.min ##########
+mod.lasso.min = glmnet(x.train,y.train, alpha = 1, 
+                       lambda = cv.lasso$lambda.min, 
+                       family = "binomial", 
+                       type.measure = "class")
+# type.measure = "class" is also an argument in glmnet, didnt use b/c I get worse predictions
+
+
+# cv.err.min: 0.3555 -> class rate: .6445
+# pred.err.min: 0.4141 -> classrate: 0.5859
+
+pred.lasso.min = as.factor(predict(mod.lasso.min,x.test, type = "class"))
+
+cm.lasso.min = confusionMatrix(pred.lasso.min, y.test)
+cm.lasso.min
+
+
+
+###############################################################################################
+########################################## Elastic Net ########################################
+
+
+######### Original Method for doing Elastic Net
+set.seed(69420)
+mod.EN <- train(x.train, y.train,
+                method = "glmnet",
+                trControl = trainControl("cv", number = 10),
+                tuneLength = 10,
+                preProcess = c("scale","center")
+                )
+mod.EN$bestTune
+
+pred.EN = predict(mod.EN,x.test, type = "raw")
+
+cm.EN = confusionMatrix(pred.EN,y.test)
+cm.EN
+
+# cv.err: 0.3284019 -> class rate: 0.6715981
+# pred.err: 0.3737 -> class reate: 0.6263
+
+
+# ######### Now using repeatedcv with 10 repeats
+# 
+# ctrl2 <- trainControl(method="repeatedcv",
+#                      number = 10,            # 10fold cross validation
+#                      repeats=10)             # do 10 repetitions of cv
+#                      #summaryFunction=twoClassSummary,   # Use AUC to pick the best model
+#                      #classProbs=TRUE)
+# 
+# mod.EN2 <- train(x.train, y.train,
+#                method = "glmnet",
+#                trControl = ctrl2,
+#                tuneLength = 10,
+#                preProcess = c("center", "scale")
+# )
+# 
+# pred.EN2 = predict(mod.EN2,x.test,type = "raw")
+# 
+# cm.EN2 = confusionMatrix(pred.EN2,y.test)
+# cm.EN2
+# ####### NOTE: mod.EN and mod.EN2 are exactly the same
+
+
+
+
+detach("package:caret", unload = TRUE)
+detach("package:glmnet", unload = TRUE)
+detach("package:tidyverse", unload = TRUE)
+
+
+```
+
+
+Random Forests
+
+```{r}
+require(randomForest)
+require(tidyverse)
+#require(caret)
+require(ggplot2)
+
+set.seed(69420)
+training.samples <- data1$y.fac %>%
+  caret::createDataPartition(p = 0.75, list = FALSE)
+train.data  <- data1[training.samples, ]
+test.data <- data1[-training.samples, ]
+
+
+View(train.data)
+x.train = train.data[,-1]
+y.train = train.data$y.fac
+
+x.test = test.data[,-1]
+y.test = test.data$y.fac
+
+################################################################################################
+set.seed(69420)
+mod.rf = randomForest(x.train,y.train, 
+                      proximity = TRUE, 
+                      importance = TRUE,
+                      ntree = 500)
+
+mod.rf$err.rate[,1][500]
+
+# oob err.rate = 0.3275 -> class rate:  
+# 
+
+pred.rf = predict(mod.rf, x.test)
+cm.rf = caret::confusionMatrix(pred.rf,y.test)
+1-cm.rf$overall[1]
+
+#### now lets try and do feature selection using boruta ######
+require(Boruta)
+
+n = nrow(x)
+k = 10
+set.seed(69420)
+folds = sample(1:k, n, replace = TRUE)
+class.rate.rf = rep(0,k)
+test.class.rf = rep(0,k)
+
+bor.sig.list = list()
+
+for(i in 1:k){
+
+  y.temp = y.fac[folds !=i]
+  x.temp = x[folds !=i, ]
+  
+  x.test.temp = x[folds == i, ]
+  y.test.temp = y.fac[folds == i]
+
+  # Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list[[i]] = bor.sig
+  x.red = x.temp[ ,bor.sig.list[[i]]]
+  
+  
+  # Fitting Random Forest Model
+  set.seed(69420)
+  rf.temp = randomForest(x.red, y.temp,
+                         proximity = TRUE,
+                         importance = TRUE,
+                         ntree = 500)
+  # oob class rate 
+  class.rate.rf[i] = 1-rf.temp$err.rate[,1][500]
+  
+  # now making predictions to get test class rate
+  pred.temp = predict(rf.temp, x.test.temp)
+  cm.rf.temp = caret::confusionMatrix(pred.temp, y.test.temp)
+
+  test.class.rf[i] = cm.rf.temp$overall[1]
+    
+    
+    
+}  
+
+
+class.rate.rf
+test.class.rf
+
+View(x.train[,bor.sig.list[[5]]])
+
+set.seed(69420)
+rf.mod.bor = randomForest(x.train[,bor.sig.list[[5]]], y.train,
+             proximity = TRUE,
+             importance = TRUE,
+             ntree = 500)
+
+rf.mod.bor
+
+rf.mod.bor.pred = predict(rf.mod.bor, x.test[,bor.sig.list[[5]]])
+cm.rf.bor = caret::confusionMatrix(rf.mod.bor.pred,y.test)
+cm.rf.bor
+
+
+######### Testing different values of M using caret package
+
+####### NOTE: none of the below code is necessary oter than to get the plot for mtry... it ended up that mtry = 20 was selected (and it gives the same test.err as mtry = 22 which was our default) mtry = 260 gave the best cv.err.rate with 0.2914 but its test error was only slightly better 0.3434
+#######
+
+
+ctrl.rf = trainControl(method="cv", number=10,returnResamp="all")
+grid.rf <- expand.grid(.mtry=c(seq(10,300,10)))
+
+set.seed(69420)
+doParallel::registerDoParallel(4)
+set.seed(69420)
+cv.rf3 <- train(x.train, y.train, method="rf", metric="Accuracy", 
+                tuneGrid=grid.rf, ntree = 500, trControl=ctrl.rf)
+cv.rf3
+
+df.cv.rf = data.frame(cv.rf3$resample[,c("mtry","Accuracy")])
+
+# calucations for horizontal line
+cv.rf.means = aggregate(.~mtry, data=df.cv.rf, mean)
+mtry.min.err = cv.rf.means$mtry[which(cv.rf.means$Accuracy == max(cv.rf.means$Accuracy))]
+accuracy.1se = mean_se(subset(df.cv.rf,mtry == mtry.min.err)$Accuracy)$ymin
+#####
+
+rf.plot = ggplot2::ggplot(df.cv.rf,aes(x=mtry,y=Accuracy))+
+  stat_summary(fun.data = mean_se, geom = "errorbar", width=0.2)+
+  stat_summary(fun=mean,geom = "line")+
+  geom_hline(yintercept = accuracy.1se, linetype="dashed", color = "blue")
+
+
+mtry.1se = min(cv.rf.means$mtry[which(cv.rf.means$mtry <= mtry.min.err & 
+                                        cv.rf.means$Accuracy >= accuracy.1se)])
+mtry.1se
+
+set.seed(69420)
+mod.rf2 = randomForest(x.train,y.train, 
+                      proximity = TRUE, 
+                      importance = TRUE,
+                      ntree = 500,
+                      mtry = mtry.1se)
+
+pred.rf2 = predict(mod.rf2,x.test)
+cm.rf2 = confusionMatrix(pred.rf2,y.test)
+cm.rf2
+
+
+set.seed(69420)
+mod.rf3 = randomForest(x.train,y.train, 
+                      proximity = TRUE, 
+                      importance = TRUE,
+                      ntree = 500,
+                      mtry = mtry.min.err)
+
+pred.rf3 = predict(mod.rf3,x.test)
+cm.rf3 = confusionMatrix(pred.rf3,y.test)
+cm.rf3
+
+### rf3 is better than rf2, but only slightly better
+
+
+detach("package:randomForest", unload = TRUE)
+detach("package:ggplot2",unload = TRUE)
+```
+
+
+Boruta for Feature Selection, SVM with Radial Kernel, Using folds to estimate test error instead of just the held out test set.
+*** This is What I am Going to USE ***
+
+```{r}
+require(Boruta)
+require(tidyverse)
+require(caret)
+require(e1071)
+
+
+### Set up folds within the training data
+n = nrow(x)
+k = 10
+set.seed(69420)
+folds = sample(1:k, n, replace = TRUE)
+class.rate.Rad.SVM = rep(0,k)
+test.err.SVM.Rad = rep(0,k)
+
+# set up control for SVM
+ctrl.Svm.Rad <- trainControl(method="repeatedcv",
+                             number = 10,# 10fold cross validation
+                             repeats = 5)             # do 5 repetitions of cv
+
+
+bor.sig.list.rad = list()
+fit.Rad.SVM = list()
+
+for(i in 1:k){
+
+  y.temp = y.fac[folds !=i]
+  x.temp = x[folds !=i, ]
+  
+  x.test.temp = x[folds == i, ]
+  y.test.temp = y.fac[folds == i]
+  
+  ##### Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list.rad[[i]] = bor.sig
+  x.red = x.temp[ ,bor.sig.list.rad[[i]]]
+  ############################################################################
+  
+  ##### Fitting model
+  set.seed(69420)
+  Rad.Svm.mod.temp = train(x.red,y.temp, method = "svmRadial", 
+                           tuneLength = 10,
+                           trControl = ctrl.Svm.Rad,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+  fit.Rad.SVM[[i]] = Rad.Svm.mod.temp
+  
+  class.rate.Rad.SVM[i] = max(Rad.Svm.mod.temp$results$Accuracy)
+  
+  pred.Rad.SVM.Boruta.temp = predict(Rad.Svm.mod.temp,x.test.temp[,bor.sig])
+  cm.SVM.Rad.temp = confusionMatrix(pred.Rad.SVM.Boruta.temp,y.test.temp)
+  test.err.SVM.Rad[i] = cm.SVM.Rad.temp$overall[1]
+
+  
+}
+
+cbind(class.rate.Rad.SVM,test.err.SVM.Rad)
+
+
+# use # 5.
+bor.sig.list.rad[[5]]
+# 12 variables included in the final model.. 2,11,50,77,164,218,222,228,230,341,350,409
+
+
+fit.Rad.SVM[[5]]
+# c = 8, sigma = 0.08114262
+# estimated test.class rate: 0.8430373 or 0.9024390
+
+#############################################################################
+# just checking which variables are included in the final features most often
+
+vect.rad = NULL
+j = 1
+for(i in unique(unlist(bor.sig.list.rad))){
+  vect.rad[j] = sum(unlist(bor.sig.list.rad) ==  i)
+  
+  j = j+1
+  
+}
+
+feat.count.rad = data.frame(var = unique(unlist(bor.sig.list.rad)), count = vect)
+feat.count.rad[c(1,2,4,5,8,9,10,11,12,13,17,23),]
+
+
+
+
+
+
+##########################################################################
+#### idk what im doing No need to look at this.####
+
+###### running model on full train set, predicting on test set for each one of the feature sets/ tuning sets
+
+# svm.cv.fit1=svm(x.train[ ,bor.sig.list[[1]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.0491162)
+# 
+# svm.cv.fit1.pred = predict(svm.cv.fit1, x.test[,bor.sig.list[[1]]])
+# confusionMatrix(svm.cv.fit1.pred,y.test)
+# 
+# 
+# 
+# svm.cv.fit2=svm(x.train[ ,bor.sig.list[[2]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.03567517)
+# 
+# svm.cv.fit2.pred = predict(svm.cv.fit2, x.test[,bor.sig.list[[2]]])
+# confusionMatrix(svm.cv.fit2.pred,y.test)
+# 
+# 
+# svm.cv.fit3=svm(x.train[ ,bor.sig.list[[3]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.0491162)
+# 
+# svm.cv.fit3.pred = predict(svm.cv.fit3, x.test[,bor.sig.list[[3]]])
+# confusionMatrix(svm.cv.fit3.pred,y.test)
+# 
+# svm.cv.fit4=svm(x.train[ ,bor.sig.list[[4]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.05812327)
+# 
+# svm.cv.fit4.pred = predict(svm.cv.fit4, x.test[,bor.sig.list[[4]]])
+# confusionMatrix(svm.cv.fit4.pred,y.test)
+# 
+# svm.cv.fit5=svm(x.train[ ,bor.sig.list.rad[[5]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.08114262)
+# 
+# svm.cv.fit5.pred = predict(svm.cv.fit5, x.test[,bor.sig.list.rad[[5]]])
+# confusionMatrix(svm.cv.fit5.pred,y.test)
+# 
+# 
+# svm.cv.fit6=svm(x.train[ ,bor.sig.list[[6]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.05089329)
+# 
+# svm.cv.fit6.pred = predict(svm.cv.fit6, x.test[,bor.sig.list[[6]]])
+# confusionMatrix(svm.cv.fit6.pred,y.test)
+# 
+# svm.cv.fit7=svm(x.train[ ,bor.sig.list[[7]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.03920995)
+# 
+# svm.cv.fit7.pred = predict(svm.cv.fit7, x.test[,bor.sig.list[[7]]])
+# confusionMatrix(svm.cv.fit7.pred,y.test)
+# 
+# 
+# svm.cv.fit8=svm(x.train[ ,bor.sig.list[[8]]],y.train, 
+#                     kernel="radial", cost=16, gamma = 0.03789148)
+# 
+# svm.cv.fit8.pred = predict(svm.cv.fit8, x.test[,bor.sig.list[[8]]])
+# confusionMatrix(svm.cv.fit8.pred,y.test)
+# 
+# svm.cv.fit9=svm(x.train[ ,bor.sig.list[[9]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.05694572)
+# 
+# svm.cv.fit9.pred = predict(svm.cv.fit9, x.test[,bor.sig.list[[9]]])
+# confusionMatrix(svm.cv.fit9.pred,y.test)
+# 
+# 
+# svm.cv.fit10=svm(x.train[ ,bor.sig.list[[10]]],y.train, 
+#                     kernel="radial", cost=8, gamma = 0.06444478)
+# 
+# svm.cv.fit10.pred = predict(svm.cv.fit10, x.test[,bor.sig.list[[10]]])
+# confusionMatrix(svm.cv.fit10.pred,y.test)
+#############################################################################################
+
+
+###############################################################################################
+# #### bootstrapping the test set to see if that gives me more of a accurate estimate
+# #### I doubt it will because I think the avearage of the bootstrapped estimates will be about the same as the estimates above
+# 
+# n = nrow(x)
+# k = 10
+# set.seed(69420)
+# folds = sample(1:k, n, replace = TRUE)
+# class.rate.Rad.SVM = rep(0,k)
+# test.err.SVM.Rad.booted = rep(0,k)
+# B = 1000
+# test.err.SVM.Rad.boot = NULL
+# 
+# # set up control for SVM
+# ctrl.Svm.Rad <- trainControl(method="cv",   # 10fold cross validation
+#                              number=10)             # do 5 repetitions of cv
+# 
+# 
+# bor.sig.list = list()
+# fit.Rad.SVM = list()
+# 
+# 
+# for(i in 1:k){
+# 
+#   y.temp = y.fac[folds !=i]
+#   x.temp = x[folds !=i, ]
+#   
+#   x.test.temp = x[folds == i, ]
+#   y.test.temp = y.fac[folds == i]
+#   
+#   ##### Boruta Stuff
+#   set.seed(69420)
+#   bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+#   bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+#   bor.sig.list[[i]] = bor.sig
+#   x.red = x.temp[ ,bor.sig.list[[i]]]
+#   
+#   
+#   ##### Fitting model
+#   set.seed(69420)
+#   Rad.Svm.mod.temp = train(x.red,y.temp, method = "svmRadial", 
+#                            tuneLength = 10,
+#                            trControl = ctrl.Svm.Rad,
+#                            preProcess = c("center","scale"),
+#                            metric = "Accuracy")
+#   fit.Rad.SVM[[i]] = Rad.Svm.mod.temp
+#   
+#   class.rate.Rad.SVM[i] = max(Rad.Svm.mod.temp$results$Accuracy)
+#   
+#   
+#   for(j in 1:B){
+#     set.seed(j)
+#     boot.index = sample(1:nrow(x.test.temp), size = nrow(x.test.temp), replace = TRUE)
+#     x.test.temp.boot = x.test.temp[boot.index,]
+#     y.test.temp.boot = y.test.temp[boot.index]
+#     
+#     pred.Rad.SVM.Boruta.temp = predict(Rad.Svm.mod.temp,x.test.temp.boot[,bor.sig])
+#     cm.SVM.Rad.temp = confusionMatrix(pred.Rad.SVM.Boruta.temp,y.test.temp.boot)
+#     test.err.SVM.Rad.boot[j] = cm.SVM.Rad.temp$overall[1]
+#     
+#   }
+#   
+#  test.err.SVM.Rad.booted[i] = mean(test.err.SVM.Rad.boot)
+# 
+#   
+# }
+# 
+# 
+# 
+# test.err.SVM.Rad.booted
+# 
+
+###############################################################################################
+###############################################################################################
+
+```
+
+Boruta for Feature Selection, SVM with Radial Kernel (Do NOT use)
+
+```{r}
+# 
+# require(Boruta)
+# require(tidyverse)
+# require(caret)
+# require(e1071)
+# 
+# ### Split Data into Training and Testing Sets
+# set.seed(69420)
+# training.samples <- data1$y.fac %>%
+#   createDataPartition(p = 0.75, list = FALSE)
+# train.data  <- data1[training.samples, ]
+# test.data <- data1[-training.samples, ]
+# 
+# x.train = train.data[,-1]
+# y.train = train.data$y.fac
+# 
+# x.test = test.data[,-1]
+# y.test = test.data$y.fac
+# 
+# ### Set up folds within the training data
+# n = nrow(x.train)
+# k = 10
+# set.seed(69420)
+# folds = sample(1:k, n, replace = TRUE)
+# class.rate.Rad.SVM = rep(0,k)
+# test.err.SVM.Rad = rep(0,k)
+# 
+# # set up control for SVM
+# ctrl.Svm.Rad <- trainControl(method="cv",   # 10fold cross validation
+#                              number=10)             # do 5 repetitions of cv
+# 
+# 
+# bor.sig.list = list()
+# fit.Rad.SVM = list()
+# 
+# for(i in 1:k){
+# 
+#   y.temp = y.train[folds !=i]
+#   x.temp = x.train[folds !=i,]
+#   
+#   ##### Boruta Stuff
+#   set.seed(69420)
+#   bor.out = Boruta(x.train[folds != i,],y.train[folds != i], doTrace = 0)
+#   bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+#   bor.sig.list[[i]] = bor.sig
+#   x.red = x.train[folds != i, bor.sig.list[[i]]]
+#   ############################################################################
+#   
+#   ##### Fitting model
+#   set.seed(69420)
+#   Rad.Svm.mod.temp = train(x.red,y.temp, method = "svmRadial", 
+#                            tuneLength = 10,
+#                            trControl = ctrl.Svm.Rad,
+#                            preProcess = c("center","scale"),
+#                            metric = "Accuracy")
+#   fit.Rad.SVM[[i]] = Rad.Svm.mod.temp
+#   
+#   class.rate.Rad.SVM[i] = max(Rad.Svm.mod.temp$results$Accuracy)
+#   
+#   pred.Rad.SVM.Boruta.temp = predict(Rad.Svm.mod.temp,x.test[,bor.sig])
+#   cm.SVM.Rad.temp = confusionMatrix(pred.Rad.SVM.Boruta.temp,y.test)
+#   test.err.SVM.Rad[i] = cm.SVM.Rad.temp$overall[1]
+# 
+#   
+# }
+# 
+# cbind(class.rate.Rad.SVM,test.err.SVM.Rad)
+# 
+# 
+# #### runing the two best models on all the training data and seeing which one predicts better
+# 
+# svm.best.cv.fit=svm(x.train[ ,bor.sig.list[[9]]],y.train, 
+#                     kernel="radial", cost=4, gamma = 0.08592243)
+# 
+# svm.best.cv.fit.pred = predict(svm.best.cv.fit, x.test[,bor.sig.list[[9]]])
+# confusionMatrix(svm.best.cv.fit.pred,y.test)
+# 
+# 
+# 
+# svm.best.pred.fit = svm(x.train[ ,bor.sig.list[[6]]],y.train, 
+#                     kernel="radial", cost = 2, gamma = 0.03427112)
+# 
+# 
+# svm.best.pred.fit.pred = predict(svm.best.pred.fit, x.test[,bor.sig.list[[6]]])
+# confusionMatrix(svm.best.pred.fit.pred,y.test)
+# 
+# # okay so this one is waaaayy better... is it the variables I'm selecting or the tuning       parameters?
+# 
+# #############################################################################################
+# ######### what happens to the above when i do reapeated cv instead of cv?
+# # A: not much changes, just get worse predictions with 6
+# 
+# class.rate.Rad.SVM.rep = rep(0,k)
+# test.err.SVM.Rad.rep = rep(0,k)
+# 
+# # set up control for SVM
+# ctrl.Svm.Rad <- trainControl(method="repeatedcv",   # 10fold cross validation
+#                              number=10,
+#                              repeats = 5)             # do 5 repetitions of cv
+# 
+# 
+# bor.sig.list = list()
+# fit.Rad.SVM.rep = list()
+# 
+# for(i in 1:k){
+# 
+#   y.temp = y.train[folds !=i]
+#   x.temp = x.train[folds !=i,]
+#   
+#   ##### Boruta Stuff
+#   set.seed(69420)
+#   bor.out = Boruta(x.train[folds != i,],y.train[folds != i], doTrace = 0)
+#   bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+#   bor.sig.list[[i]] = bor.sig
+#   x.red = x.train[folds != i, bor.sig.list[[i]]]
+#   ############################################################################
+#   
+#   ##### Fitting model
+#   set.seed(69420)
+#   Rad.Svm.mod.temp = train(x.red,y.temp, method = "svmRadial", 
+#                            tuneLength = 10,
+#                            trControl = ctrl.Svm.Rad,
+#                            preProcess = c("center","scale"),
+#                            metric = "Accuracy")
+#   fit.Rad.SVM.rep[[i]] = Rad.Svm.mod.temp
+#   
+#   class.rate.Rad.SVM.rep[i] = max(Rad.Svm.mod.temp$results$Accuracy)
+#   
+#   pred.Rad.SVM.Boruta.temp = predict(Rad.Svm.mod.temp,x.test[,bor.sig])
+#   cm.SVM.Rad.temp = confusionMatrix(pred.Rad.SVM.Boruta.temp,y.test)
+#   test.err.SVM.Rad.rep[i] = cm.SVM.Rad.temp$overall[1]
+# 
+#   
+# }
+# 
+# cbind(class.rate.Rad.SVM.rep,test.err.SVM.Rad.rep)
+# 
+# 
+# 
+# svm.best.rep.cv.fit=svm(x.train[ ,bor.sig.list[[9]]],y.train, 
+#                     kernel="radial", cost = 4, gamma = 0.08592243)
+# 
+# svm.best.rep.cv.fit.pred = predict(svm.best.rep.cv.fit, x.test[,bor.sig.list[[9]]])
+# confusionMatrix(svm.best.rep.cv.fit.pred,y.test)
+# 
+# 
+# 
+# svm.best.pred.fit = svm(x.train[ ,bor.sig.list[[6]]],y.train, 
+#                     kernel="radial", cost = 16, gamma = 0.03427112)
+# 
+# 
+# svm.best.pred.fit.pred = predict(svm.best.pred.fit, x.test[,bor.sig.list[[6]]])
+# confusionMatrix(svm.best.pred.fit.pred,y.test)
+# 
+
+###############################################################################################
+###############################################################################################
+
+
+```
+
+Boruta for Feature Selection, SVM with Radial Kernel; using holdout set and folds to estimate test error (DO NOT use)
+
+```{r}
+
+require(Boruta)
+require(tidyverse)
+require(caret)
+require(e1071)
+
+### Split Data into Training and Testing Sets
+set.seed(69420)
+training.samples <- data1$y.fac %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train.data  <- data1[training.samples, ]
+test.data <- data1[-training.samples, ]
+
+x.train = train.data[,-1]
+y.train = train.data$y.fac
+
+x.test = test.data[,-1]
+y.test = test.data$y.fac
+
+### Set up folds within the training data
+n = nrow(x.train)
+k = 10
+set.seed(69420)
+folds.cv.ho = sample(1:k, n, replace = TRUE)
+
+class.rate.Rad.SVM.cv.ho = rep(0,k)
+test.err.SVM.Rad.cv = rep(0,k)
+test.err.SVM.Rad.ho = rep(0,k)
+
+# set up control for SVM
+ctrl.Svm.Rad <- trainControl(method="cv",   # 10fold cross validation
+                             number=10)             # do 5 repetitions of cv
+
+
+bor.sig.list.cv.ho = list()
+fit.Rad.SVM.cv.ho = list()
+
+for(i in 1:k){
+
+  y.train.temp = y.train[folds.cv.ho !=i]
+  x.train.temp = x.train[folds.cv.ho !=i,]
+  
+  ##### Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.train.temp,y.train.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list.cv.ho[[i]] = bor.sig
+  x.red = x.train.temp[ , bor.sig.list.cv.ho[[i]]]
+  ############################################################################
+  
+  ##### Fitting model
+  set.seed(69420)
+  Rad.Svm.mod.temp = train(x.red,y.train.temp, method = "svmRadial", 
+                           tuneLength = 10,
+                           trControl = ctrl.Svm.Rad,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+  fit.Rad.SVM.cv.ho[[i]] = Rad.Svm.mod.temp
+  
+  class.rate.Rad.SVM.cv.ho[i] = max(Rad.Svm.mod.temp$results$Accuracy)
+  
+  pred.Rad.SVM.Boruta.temp.ho = predict(Rad.Svm.mod.temp,x.test[,bor.sig])
+  cm.SVM.Rad.temp.ho = confusionMatrix(pred.Rad.SVM.Boruta.temp.ho,y.test)
+  test.err.SVM.Rad.ho[i] = cm.SVM.Rad.temp.ho$overall[1]
+  
+  pred.Rad.SVM.Boruta.temp.cv = predict(Rad.Svm.mod.temp, x.train[folds.cv.ho == i, bor.sig])
+  cm.SVM.Rad.temp.cv = confusionMatrix(pred.Rad.SVM.Boruta.temp.cv,y.train[folds.cv.ho==i])
+  test.err.SVM.Rad.cv[i] = cm.SVM.Rad.temp.cv$overall[1]
+
+  
+}
+
+cbind(class.rate.Rad.SVM.cv.ho,test.err.SVM.Rad.cv,test.err.SVM.Rad.ho)
+
+
+
+pred.Rad.SVM.Boruta.ho1 = predict(fit.Rad.SVM[[6]],x.test[,bor.sig.list[[6]]])
+  cm.SVM.Rad.temp.ho1 = confusionMatrix(pred.Rad.SVM.Boruta.ho1,y.test)
+  test.err.SVM.Rad.ho1 = cm.SVM.Rad.temp.ho1$overall[1]
+
+  
+svm.best.pred.fit = svm(x.train[ ,bor.sig.list[[6]]],y.train, 
+                    kernel="radial", cost = 2, gamma = 0.03427112)
+
+
+svm.best.pred.fit.pred = predict(svm.best.pred.fit, x.test[,bor.sig.list[[6]]])
+confusionMatrix(svm.best.pred.fit.pred,y.test)
+
+# the reason for the difference between the two is that one of them is trained on more data... the second one is making use of all the training data and the first one is making use of only the training data not included in the ith fold.  To make their predictions equal, for the second model, just change x.train[,bor.sig.list[[6]]] to x.train[folds != 6,bor.sig.list[[6]]] and change y.train to y.train[folds != 6]
+
+
+
+
+### estimating test error for each model selected in each fold
+# Rerun CV for each model, using the whole training dataset
+
+# unlist(bor.sig.list) == unlist(bor.sig.list.cv.ho); # the two bor.lists are the same
+Rad.Svm.mod.full = list()
+Rad.Svm.mod.full.err = rep(0,10)
+
+for(i in 1:10){
+  set.seed(69420)
+  Rad.Svm.mod.full[[i]] = train(x[,bor.sig.list[[i]]],y.fac, method = "svmRadial", 
+                           tuneGrid = expand.grid(sigma = fit.Rad.SVM[[i]][["bestTune"]]$sigma,
+                                                  C = fit.Rad.SVM[[i]][["bestTune"]]$C),
+                           trControl = ctrl.Svm.Rad,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+  Rad.Svm.mod.full.err[i] = Rad.Svm.mod.full[[i]]$results$Accuracy
+  
+}
+
+Rad.Svm.mod.temp = train(x[,bor.sig.list[[6]]],y.fac, method = "svmRadial", 
+                           tuneGrid = expand.grid(sigma = fit.Rad.SVM[[6]][["bestTune"]]$sigma,
+                                                  C = fit.Rad.SVM[[6]][["bestTune"]]$C),
+                           trControl = ctrl.Svm.Rad,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+
+
+
+
+```
+
+
+Boruta for Feature Selection, SVM with Linear Kernel (worse than radial)
+
+```{r}
+require(Boruta)
+require(tidyverse)
+require(caret)
+require(e1071)
+
+### Set up folds within the training data
+n = nrow(x)
+k = 10
+set.seed(69420)
+folds = sample(1:k, n, replace = TRUE)
+class.rate.Lin.SVM = rep(0,k)
+test.err.SVM.Lin = rep(0,k)
+
+# set up control for SVM
+ctrl.Svm.Lin <- trainControl(method="repeatedcv",   # 10fold cross validation
+                             number=10,
+                             repeats = 5) # do 5 repetitions of cv
+
+
+C = c(0.2,0.4,0.6,0.8,1,2,4,6,8)
+grid.Lin.SVM = expand.grid(C = C)
+
+
+bor.sig.list.lin = list()
+fit.Lin.SVM = list()
+
+for(i in 1:k){
+
+  y.temp = y.fac[folds !=i]
+  x.temp = x[folds !=i,]
+  
+  x.test.temp = x[folds == i, ]
+  y.test.temp = y.fac[folds == i]
+  
+  ##### Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list.lin[[i]] = bor.sig
+  x.red = x.temp[ , bor.sig.list.lin[[i]]]
+  ############################################################################
+  
+  # Fitting model
+  set.seed(69420)
+  Lin.Svm.mod.temp = train(x.red,y.temp, method = "svmLinear", 
+                           tuneGrid = grid.Lin.SVM,
+                           trControl = ctrl.Svm.Lin,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+  fit.Lin.SVM[[i]] = Lin.Svm.mod.temp
+  
+  class.rate.Lin.SVM[i] = max(Lin.Svm.mod.temp$results$Accuracy)
+  
+  pred.Lin.SVM.Boruta.temp = predict(Lin.Svm.mod.temp,x.test.temp[,bor.sig])
+  cm.SVM.Lin.temp = confusionMatrix(pred.Lin.SVM.Boruta.temp,y.test.temp)
+  test.err.SVM.Lin[i] = cm.SVM.Lin.temp$overall[1]
+
+  
+}
+
+cbind(class.rate.Lin.SVM,test.err.SVM.Lin)
+
+# all the models do worse than the radial
+fit.Lin.SVM[[10]]
+# est class rate: 0.78125
+# params cost C = 2
+
+bor.sig.list.lin[[10]]
+# 2,11,41,77,123,164,215,222,228,282,330,341
+
+####################################################################################
+svm.cv.lin.fit1=svm(x.train[ ,bor.sig.list.lin[[1]]],y.train, 
+                    kernel="linear", cost=0.2)
+
+svm.cv.lin.fit1.pred = predict(svm.cv.lin.fit1, x.test[,bor.sig.list.lin[[1]]])
+confusionMatrix(svm.cv.lin.fit1.pred,y.test)
+
+
+
+svm.cv.lin.fit2=svm(x.train[ ,bor.sig.list.lin[[2]]],y.train, 
+                    kernel="linear", cost=0.2)
+
+svm.cv.lin.fit2.pred = predict(svm.cv.lin.fit2, x.test[,bor.sig.list.lin[[2]]])
+confusionMatrix(svm.cv.lin.fit2.pred,y.test)
+
+
+svm.cv.lin.fit3=svm(x.train[ ,bor.sig.list.lin[[3]]],y.train, 
+                    kernel="linear", cost=0.2)
+
+svm.cv.lin.fit3.pred = predict(svm.cv.lin.fit3, x.test[,bor.sig.list.lin[[3]]])
+confusionMatrix(svm.cv.lin.fit3.pred,y.test)
+
+svm.cv.lin.fit4=svm(x.train[ ,bor.sig.list.lin[[4]]],y.train, 
+                    kernel="linear", cost=2)
+
+svm.cv.lin.fit4.pred = predict(svm.cv.lin.fit4, x.test[,bor.sig.list.lin[[4]]])
+confusionMatrix(svm.cv.lin.fit4.pred,y.test)
+
+svm.cv.lin.fit5=svm(x.train[ ,bor.sig.list.lin[[5]]],y.train, 
+                    kernel="linear", cost=1)
+
+svm.cv.lin.fit5.pred = predict(svm.cv.lin.fit5, x.test[,bor.sig.list.lin[[5]]])
+confusionMatrix(svm.cv.lin.fit5.pred,y.test)
+
+
+svm.cv.lin.fit6=svm(x.train[ ,bor.sig.list.lin[[6]]],y.train, 
+                    kernel="linear", cost=0.2)
+
+svm.cv.lin.fit6.pred = predict(svm.cv.lin.fit6, x.test[,bor.sig.list.lin[[6]]])
+confusionMatrix(svm.cv.lin.fit6.pred,y.test)
+
+svm.cv.lin.fit7=svm(x.train[ ,bor.sig.list.lin[[7]]],y.train, 
+                    kernel="linear", cost=0.2)
+
+svm.cv.lin.fit7.pred = predict(svm.cv.lin.fit7, x.test[,bor.sig.list.lin[[7]]])
+confusionMatrix(svm.cv.lin.fit7.pred,y.test)
+
+
+svm.cv.lin.fit8=svm(x.train[ ,bor.sig.list.lin[[8]]],y.train, 
+                    kernel="linear", cost=0.6)
+
+svm.cv.lin.fit8.pred = predict(svm.cv.lin.fit8, x.test[,bor.sig.list.lin[[8]]])
+confusionMatrix(svm.cv.lin.fit8.pred,y.test)
+
+svm.cv.lin.fit9=svm(x.train[ ,bor.sig.list.lin[[9]]],y.train, 
+                    kernel="linear", cost=2)
+
+svm.cv.lin.fit9.pred = predict(svm.cv.lin.fit9, x.test[,bor.sig.list.lin[[9]]])
+confusionMatrix(svm.cv.lin.fit9.pred,y.test)
+
+
+svm.cv.lin.fit10=svm(x.train[ ,bor.sig.list.lin[[10]]],y.train, 
+                    kernel="linear", cost=2)
+
+svm.cv.lin.fit10.pred = predict(svm.cv.lin.fit10, x.test[,bor.sig.list.lin[[10]]])
+confusionMatrix(svm.cv.lin.fit10.pred,y.test)
+
+
+```
+
+Boruta for Feature Selection, SVM with polynomial Kernel (worse than radial)
+```{r}
+
+require(Boruta)
+require(tidyverse)
+require(caret)
+require(e1071)
+
+
+### Set up folds within the training data
+n = nrow(x)
+k = 10
+set.seed(69420)
+folds = sample(1:k, n, replace = TRUE)
+class.rate.Poly.SVM = rep(0,k)
+test.err.SVM.Poly = rep(0,k)
+
+# set up control for SVM
+ctrl.Svm.Poly <- trainControl(method="repeatedcv",   # 10fold cross validation
+                              number=10,
+                              repeats = 5)             
+
+bor.sig.list.poly = list()
+fit.Poly.SVM = list()
+
+for(i in 1:k){
+
+  y.temp = y.fac[folds !=i]
+  x.temp = x[folds !=i,]
+  
+  x.test.temp = x[folds == i, ]
+  y.test.temp = y.fac[folds == i]
+  
+  
+  ##### Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list.poly[[i]] = bor.sig
+  x.red = x.temp[ , bor.sig.list.poly[[i]]]
+  ############################################################################
+  
+  # Fitting model
+  set.seed(69420)
+  Poly.Svm.mod.temp = train(x.red,y.temp, method = "svmPoly", 
+                           tuneLength = 4,
+                           trControl = ctrl.Svm.Poly,
+                           preProcess = c("center","scale"),
+                           metric = "Accuracy")
+  fit.Poly.SVM[[i]] = Poly.Svm.mod.temp
+  
+  class.rate.Poly.SVM[i] = max(Poly.Svm.mod.temp$results$Accuracy)
+  
+  pred.Poly.SVM.Boruta.temp = predict(Poly.Svm.mod.temp,x.test.temp[,bor.sig])
+  cm.SVM.Poly.temp = confusionMatrix(pred.Poly.SVM.Boruta.temp,y.test.temp)
+  test.err.SVM.Poly[i] = cm.SVM.Poly.temp$overall[1]
+
+  
+}
+
+cbind(class.rate.Poly.SVM,test.err.SVM.Poly)
+
+fit.Poly.SVM[[5]]
+
+# best estimated class rate 0.8780488
+# degree = 3, scale = 0.1 C = 0.5
+bor.sig.list.poly[[5]]
+
+# 2,11,50,77,164,218,222,228,330,341,350,409
+
+
+
+
+```
+
+Boruta for Feature Selection, Ridge Regression (worse than radial)
+
+```{r}
+
+require(Boruta)
+require(tidyverse)
+require(caret)
+require(glmnet)
+
+### Set up folds within the training data
+n = nrow(x)
+k = 10
+set.seed(69420)
+folds = sample(1:k, n, replace = TRUE)
+class.rate.ridge = rep(0,k)
+test.err.ridge = rep(0,k)
+
+# set up control for ridge
+#ctrl.ridge <- trainControl(method="repeatedcv",   # 10fold cross validation
+#                           number=10,
+#                           repeats = 5)             
+
+bor.sig.list.ridge = list()
+fit.ridge = list()
+
+for(i in 1:k){
+
+  y.temp = y.fac[folds !=i]
+  x.temp = x[folds !=i,]
+  
+  x.test.temp = as.matrix(x[folds == i, ])
+  y.test.temp = y.fac[folds == i]
+  
+  
+  ##### Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list.ridge[[i]] = bor.sig
+  x.red = x.temp[ , bor.sig.list.ridge[[i]]]
+  x.red = as.matrix(x.red)
+  ############################################################################
+  
+  # Fitting model
+  set.seed(69420)
+  cv.ridge.temp = cv.glmnet(x.red, y.temp, 
+                            alpha=0, 
+                            family = "binomial", 
+                            type.measure = "class") 
+  class.rate.ridge[i] = cv.ridge$cvm[which(cv.ridge$lambda == cv.ridge$lambda.1se)]
+  
+  set.seed(69420)
+  ridge.mod.temp = glmnet(x.red,y.temp, 
+                          alpha = 0, 
+                          lambda = cv.ridge.temp$lambda.1se, 
+                          family = "binomial",
+                          type.measure = "class")
+  
+  fit.ridge[[i]] = ridge.mod.temp
+  
+  
+  pred.ridge.Boruta.temp = as.factor(predict(ridge.mod.temp,x.test.temp[,bor.sig], 
+                                             type = "class"))
+  
+  cm.ridge.temp = confusionMatrix(pred.ridge.Boruta.temp,y.test.temp)
+  test.err.ridge[i] = cm.ridge.temp$overall[1]
+
+  
+}
+
+cbind(class.rate.ridge,test.err.ridge)
+
+
+fit.ridge[[7]]
+# best estimated class rate 0.7692308
+# lambda = 0.9487
+bor.sig.list.ridge[[7]]
+# 2,6,10,11,41,50,64,77,215,222,228,234,282,330,341,350,368,409,421
+
+```
+
+Boruta for Feature Selection, Elastic Net (worse than radial)
+
+```{r}
+
+require(Boruta)
+require(tidyverse)
+require(caret)
+require(glmnet)
+
+
+### Set up folds within the training data
+n = nrow(x)
+k = 10
+set.seed(69420)
+folds = sample(1:k, n, replace = TRUE)
+class.rate.EN = rep(0,k)
+test.err.EN = rep(0,k)
+
+# set up control for SVM
+ctrl.EN <- trainControl(method="repeatedcv",   # 10fold cross validation
+                        number=10,
+                        repeats = 5)             
+
+bor.sig.list.EN = list()
+fit.EN = list()
+
+for(i in 1:k){
+
+  y.temp = y.fac[folds !=i]
+  x.temp = x[folds !=i,]
+  
+  x.test.temp = as.matrix(x[folds == i, ])
+  y.test.temp = y.fac[folds == i]
+  
+  
+  ##### Boruta Stuff
+  set.seed(69420)
+  bor.out = Boruta(x.temp,y.temp, doTrace = 0)
+  bor.sig = getSelectedAttributes(bor.out, withTentative = TRUE)
+  bor.sig.list.EN[[i]] = bor.sig
+  x.red = x.temp[ , bor.sig.list.EN[[i]]]
+  x.red = as.matrix(x.red)
+  ############################################################################
+  
+  # Fitting model
+  set.seed(69420)
+  mod.EN.temp <- train(x.red, y.temp,
+                       method = "glmnet",
+                       trControl = ctrl.EN,
+                       tuneLength = 10,
+                       preProcess = c("scale","center")
+                       )
+  fit.EN[[i]] = mod.EN.temp
+  
+  class.rate.EN[i] = max(mod.EN.temp$results$Accuracy)
+
+  pred.EN.temp = predict(mod.EN.temp,x.test.temp[,bor.sig], type = "raw")
+  cm.EN.temp = confusionMatrix(pred.EN.temp,y.test.temp)
+  test.err.EN[i] = cm.EN.temp$overall[1]
+
+  
+}
+
+cbind(class.rate.EN,test.err.EN)
+
+fit.EN[[3]]$finalModel
+
+# best estimated class rate 0.7209302
+# alpha = 0.7, lambda = 0.0557272
+bor.sig.list.EN[[3]]
+
+# 2,11,77,164,168,218,222,228,234,330,341,368,381,409,423
+
+Coefficents_ElasticNet = coef(fit.EN[[3]]$finalModel, fit.EN[[3]]$bestTune$lambda)
+Coefficents_ElasticNet
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+#### Unsupervised Learning
+
+```{r}
+
+###############################CLUSTERING########################################
+
+df = load("C:/Users/jackr/OneDrive/Desktop/Graduate School Courses/STAT 639 - Data Mining and Analysis/Data/cluster_data.RData", verbose = TRUE)
+
+
+library(ggplot2)
+library(dplyr)
+library(cluster)
+library(rstatix)
+library(dbscan)
+library(purrr)
+library(factoextra)
+set.seed(1)
+# apply PCA to data first to reduce dimension
+# and ensure that our variables are not correlated 
+r=prcomp(y, scale = TRUE)
+data=scale(y)
+mean(y)
+
+# investigate variation proportion to decide on the number of PCs to use
+rho = sum(diag((cov(r$x))))
+# the following has 14, 33,50,66,75,90,95,99% variance proportion, respectively 
+sum(diag(cov(r$x))[1:2])/rho
+sum(diag(cov(r$x))[1:8])/rho
+sum(diag(cov(r$x))[1:22])/rho
+sum(diag(cov(r$x))[1:50])/rho
+sum(diag(cov(r$x))[1:85])/rho
+sum(diag(cov(r$x))[1:187])/rho
+sum(diag(cov(r$x))[1:250])/rho
+sum(diag(cov(r$x))[1:382])/rho
+
+# Save the following variance proportion and the respective PC's
+x_14 = r$x[,1:2]
+x_33 = r$x[,1:7]
+x_50 = r$x[,1:22]
+x_75 = r$x[,1:85]
+x_99 = r$x[,1:382]
+xfull = r$x[,1:784]
+
+
+
+### K- means clustering
+# function to test k=2~25 and visualize average silhouette 
+plot_sil_k = function (dat){
+  
+  sil <- function(k) {
+    km.res <- kmeans(dat,k, nstart = 25)
+    ss <- silhouette(km.res$cluster, dist(dat))
+    mean(ss[, 3])
+  }
+  
+  k_sil <- map_dbl(2:25, sil)
+  
+  
+  plot(2:25,k_sil,
+       type = "b", pch = 19,
+       main = paste("K-Means for ",substitute(dat)),
+       xlab = "Number of K",
+       ylab = "Sihouette Average")
+}
+
+### Hierarchical Clustering
+# function to test k=2~25 and visualize average silhouette 
+plot_sil_hc = function(dat){
+  
+  sil <- function(k) {
+    hc.res <- hclust(dist(dat))
+    ss <- silhouette(cutree(hc.res,k), dist(dat))
+    mean(ss[, 3])
+  }
+  
+  hc_sil <- map_dbl(2:25, sil)
+  
+  
+  plot(2:25,hc_sil,
+       type = "b", pch = 19,
+       main = paste("Hierarchical Clustering for ",substitute(dat)),
+       xlab = "Number of K",
+       ylab = "Sihouette Average")
+}
+
+
+### PAM/K-medoids Clustering
+# doesn't assume the clusters to be sphere
+# function to test k=2~25 and visualize average silhouette 
+plot_sil_pam = function(dat){
+  sil <- function(k) {
+    km.res <- pam(dat,k, nstart = 25)
+    ss <- silhouette(km.res$cluster, dist(dat))
+    mean(ss[, 3])
+  }
+  
+  k_sil <- map_dbl(2:25, sil)
+  
+  plot(2:25,k_sil,
+       type = "b", pch = 19,
+       main = paste("PAM for ",substitute(dat)),
+       xlab = "Number of K",
+       ylab = "Sihouette Average")
+}
+
+#### test data sets
+#I've ran tested functions over all the data sets I've created above ranging from 2 PC's to 382Pc's with 14~99% variation reserved 
+plot_sil_k(x_14)
+plot_sil_pam(x_14)
+plot_sil_hc(x_14)
+
+plot_sil_k(x_33)
+plot_sil_pam(x_33)
+plot_sil_hc(x_33)
+
+
+plot_sil_k(x_50)
+plot_sil_pam(x_50)
+plot_sil_hc(x_50)
+
+
+plot_sil_k(x_75)
+plot_sil_pam(x_75)
+plot_sil_hc(x_75)
+
+
+plot_sil_k(x_99)
+plot_sil_pam(x_99)
+plot_sil_hc(x_99)
+
+### HC are not producing meaningful results
+hc.res = hclust(dist(x_99))
+cutree(hc.res,2)
+hc.res = hclust(dist(x_33))
+cutree(hc.res,2)
+
+
+### Function to compare average silhouettes for each method given data and k
+
+compare = function(dat,k){
+  print("Kmeans Silhouette" )
+  km.res = kmeans(dat,k, nstart = 25)
+  ss = silhouette(km.res$cluster, dist(dat))
+  print(mean(ss[, 3]))
+  print("K medoids Silhouette")
+  km.res <- pam(dat,2, nstart = 25)
+  ss <- silhouette(km.res, dist(dat))
+  print(mean(ss[, 3]))
+  
+  print("H Clustering Silhouette")
+  hc.res = hclust(dist(dat))
+  ss = silhouette(cutree(hc.res,k), dist(dat))
+  print(mean(ss[,3]))
+}
+
+#k - means performs the best for k=7
+compare(x_14,7)
+
+
+
+###Gaussian mixture models are not used since the assumptions are not met
+shapiro.test(r$x[,1])
+shapiro.test(r$x[,2])
+shapiro.test(r$x[,3])
+
+### Density-based Spatial Clustering of Applications (DBSCAN)
+for (i in 5:25){
+  print(dbscan(x_14,eps=0.1*i, minPts = 5))
+}
+
+for (i in 5:25){
+  print(dbscan(x_99,eps=i, minPts = 5))
+}
+# no meaningful partiton of data found
+
+
+### Data visualization of our choice k=7 based on the first two PC's. 
+km.res<-kmeans(x_14,7,nstart=25)
+km.res
+fviz_cluster(km.res,x_14,ellpise.type="ellipse",geom="point")
+```
+
+
+
+
+
+
+
+
